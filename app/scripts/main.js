@@ -5,12 +5,12 @@ document.addEventListener("DOMContentLoaded", function () {
     var CONFIG = {
             // This is the host will post to to create the database. This should be the root server in the federation.
             host: "my.geotab.com",
-            debug: true,
+            debug: false,
             // Local debug config (you must create DB and admin user manually)
             debugDBConfig: {
                 host: "localhost",
                 db: "temp", // loacal DB name
-                user: "nickklimkovich@geotab.com", // DB admin user
+                user: "qqwe@qwe.com", // DB admin user
                 password: "qweqwe" // DB admin user password
             },
             allowedSecurityRules: [ // If not empty array then Restricted Admin user will be created with permission provided
