@@ -8,9 +8,9 @@ document.addEventListener("DOMContentLoaded", function () {
             debug: false,
             // Local debug config (you must create DB and admin user manually)
             debugDBConfig: {
-                host: "localhost",
+                host: "127.0.0.1",
                 db: "temp", // loacal DB name
-                user: "qqwe@qwe.com", // DB admin user
+                user: "qwe@qwe.com", // DB admin user
                 password: "qweqwe" // DB admin user password
             },
             allowedSecurityRules: [ // If not empty array then Restricted Admin user will be created with permission provided
@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
         elWaiting = document.querySelector("#waiting"),
 
         elCompanyName = document.querySelector("#companyName"),
+        elDatabaseNameText = document.querySelector("#databaseNameText"),
         elDatabaseName = document.querySelector("#databaseName"),
         elPhoneNumber = document.querySelector("#phoneNumber"),
         elFleetSize = document.querySelector("#fleetSize"),
@@ -140,6 +141,10 @@ document.addEventListener("DOMContentLoaded", function () {
             elLoading.style.display = "none";
         },
 
+        resolvedPromise = function () {
+            return new Promise(function(fakeResolver){ return fakeResolver([]); })
+        },
+
         // Errors
         /**
          * Show error message
@@ -148,7 +153,7 @@ document.addEventListener("DOMContentLoaded", function () {
         showError = function (err) {
             var errorString = "Error";
             if (err && (err.name || err.message)) {
-                errorString = (err.name ? err.name + ": " : +"") + (err.message || "");
+                errorString = (err.name ? err.name + ": " : "") + (err.message || "");
             }
             elErrorContent.textContent = errorString;
             elError.style.display = "block";
@@ -168,9 +173,9 @@ document.addEventListener("DOMContentLoaded", function () {
          */
         createDatabaseNameFromCompany = function (companyName) {
             var underscore_char = 95,
-                companyNameCharacters = new Array(companyName.length),
+                companyNameCharacters = new Array(),
                 i = 0,
-                num, num1, num2, c,
+                num, num1, num2, c, charStr,
                 chrArray = companyName.split("").map(function (c) {
                     return c.charCodeAt(0);
                 }),
@@ -178,7 +183,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             for (num = 0; num < length; num++) {
                 c = chrArray[num];
-                if ((/\w|\d/.test(String.fromCharCode(c)) ? 1 : 0) !== 0) {
+                charStr = String.fromCharCode(c);
+                if (/\w|\d/.test(charStr) && (c !== underscore_char || companyNameCharacters[i - 1] !== underscore_char)) {
                     num1 = i;
                     i++;
                     companyNameCharacters[num1] = c;
@@ -189,11 +195,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
 
-            if (i > 0 && companyNameCharacters[i - 1] === underscore_char) {
-                i = i + -1;
-            }
-
-            return String.fromCharCode.apply(String.fromCharCode, companyNameCharacters).substr(0, i);
+            return String.fromCharCode.apply(this, companyNameCharacters);
         },
 
         // So we can clear the timeout if user is still typing
@@ -204,8 +206,8 @@ document.addEventListener("DOMContentLoaded", function () {
          * @param databaseName {string} - the database name
          */
         checkAvailability = function (databaseName) {
-            elDatabaseName.parentNode.querySelector(".help-block").style.display = "none";
-            changeValidationState(elDatabaseName.parentNode, validationState.none);
+            elDatabaseNameText.parentNode.querySelector(".help-block").style.display = "none";
+            changeValidationState(elDatabaseNameText.parentNode, validationState.none);
             if (!databaseName) {
                 elWaiting.style.display = "none";
                 return;
@@ -219,8 +221,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     database: databaseName
                 })
                     .then(function (result) {
-                        changeValidationState(elDatabaseName.parentNode, result ? validationState.error : validationState.success);
-                        elDatabaseName.parentNode.querySelector(".help-block").style.display = result ? "block" : "none";
+                        changeValidationState(elDatabaseNameText.parentNode, result ? validationState.error : validationState.success);
+                        elDatabaseNameText.parentNode.querySelector(".help-block").style.display = result ? "block" : "none";
                         elWaiting.style.display = "none";
                     }, function (err) {
                         elWaiting.style.display = "none";
@@ -234,7 +236,9 @@ document.addEventListener("DOMContentLoaded", function () {
          * @param companyName
          */
         updateShortDatabase = function (companyName) {
-            var databaseName = createDatabaseNameFromCompany(companyName);
+            var databaseNameText = createDatabaseNameFromCompany(companyName),
+                databaseName = databaseNameText.slice(-1) === "_" ? databaseNameText.slice(0, -1) : databaseNameText;
+            elDatabaseNameText.value = databaseNameText;
             elDatabaseName.value = databaseName;
             checkAvailability(databaseName);
         },
@@ -335,7 +339,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             if (!values.database) {
                 isValid = false;
-                changeValidationState(elDatabaseName.parentNode, validationState.error);
+                changeValidationState(elDatabaseNameText.parentNode, validationState.error);
             }
             if (!values.userName || !isValidEmail(values.userName)) {
                 isValid = false;
@@ -533,11 +537,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     try {
                         content = JSON.parse(contentString);
                     } catch(e) {
-                        reject(e);
+                        reject({message: "Invalid imported file's content. File's content can't be converted to a valid JSON object."});
                     }
 
                     options.importedConfig = content;
-                    resolve(options)
+                    resolve(options);
                 };
 
                 fileReader.readAsText(importedConfigFile);
@@ -553,10 +557,13 @@ document.addEventListener("DOMContentLoaded", function () {
             var config = options.importedConfig,
                 importSequence = [
                     {types: ["groups"], importer: importGroups},
-                    {types: ["securityGroups"], importer: importSecurityGroups},
+                    {types: ["securityGroups"], importer: importCustomGroups},
+                    {types: ["customMaps"], importer: importCustomMaps},
                     {types: ["workHolidays", "workTimes", "zoneTypes", "users"], importer: importGroupsOfEntities},
-                    {types: ["zones", "devices"], importer: importGroupsOfEntities},
+                    {types: ["diagnostics"], importer: importDiagnostics},
+                    {types: ["zones", "devices", "notificationTemplates"], importer: importGroupsOfEntities},
                     {types: ["rules"], importer: importRules},
+                    {types: ["distributionLists"], importer: importGroupsOfEntities},
                     {types: ["reports"], importer: importReports},
                     {types: ["misc"], importer: importMiscSettings}
                 ];
@@ -608,9 +615,33 @@ document.addEventListener("DOMContentLoaded", function () {
                         return items;
                     }, []);
                 },
+                getUserByPrivateGroupId = function (groupId) {
+                    var currentUser = options.importedConfig.misc.currentUser,
+                        users = options.importedConfig.users,
+                        outputUser,
+                        userHasPrivateGroup = function (user, groupId) {
+                            return user.privateUserGroups.some(function(group) {
+                                if(group.id === groupId) {
+                                    return true;
+                                }
+                            });
+                        };
+                    if(userHasPrivateGroup(currentUser, groupId)) {
+                        outputUser = options.user;
+                    } else {
+                        users.some(function(user) {
+                            if(userHasPrivateGroup(user, groupId)) {
+                                outputUser = user;
+                                return true;
+                            }
+                        })
+                    }
+                    return outputUser;
+                },
                 generateAddGroupRequest = function (group) {
                     var oldId = group.id,
                         oldParentId = group.parent && group.parent.id,
+                        privateUser = group.user,
                         newId = options.importedData.groups[oldId],
                         newParentId = oldParentId && options.importedData.groups[oldParentId],
                         request,
@@ -620,14 +651,19 @@ document.addEventListener("DOMContentLoaded", function () {
                         newGroup.id = null;
                         newGroup.children = [];
                         newGroup.parent = { id: newParentId };
+                        delete(newGroup.user);
                         if (newParentId === defaultPrivateGroupId) {
-                            newGroup = {
-                                name: options.user.name,
-                                color: {r: 0, g: 0, b: 0, a: 0},
-                                parent: {
-                                    id: defaultPrivateGroupId
-                                }
-                            };
+                            if(privateUser) {
+                                newGroup = {
+                                    name: privateUser.name,
+                                    color: {r: 0, g: 0, b: 0, a: 0},
+                                    parent: {
+                                        id: defaultPrivateGroupId
+                                    }
+                                };
+                            } else {
+                                return null;
+                            }
                         }
                         request = ["Add", {
                             typeName: "Group",
@@ -638,8 +674,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 parseResults = function (levelGroups, results) {
                     results.forEach(function (result, index) {
+                        var groupParentId = levelGroups[index].parent.id,
+                            user = getUserByPrivateGroupId(levelGroups[index].id);
                         result && (options.importedData.groups[levelGroups[index].id] = result);
-                        levelGroups[index].parent.id === defaultPrivateGroupId && options.user.privateUserGroups.push({id: result});
+                        groupParentId === defaultPrivateGroupId && user && user.name === options.user.name && options.user.privateUserGroups.push({id: result});
                     })
                 },
                 groupsLevels = splitGroupsByLevels(groups);
@@ -670,13 +708,16 @@ document.addEventListener("DOMContentLoaded", function () {
         },
 
         updateGroupsIds = function (object, properties, groupsHash) {
+            var updateGroup = function (item) {
+                groupsHash[item.id] && (item.id = groupsHash[item.id]);
+                delete item.children;
+            };
             Object.keys(object).forEach(function (property) {
                 var value = object[property];
-                if (properties.indexOf(property) > -1 && Array.isArray(value)) {
-                    value.forEach(function (item) {
-                        item.id = groupsHash[item.id];
-                        delete item.children;
-                    })
+                if (properties.indexOf(property) > -1) {
+                    Array.isArray(value) ?
+                        value.forEach(function (item) { updateGroup(item); }) :
+                        (value.id && updateGroup(value));
                 }
             })
         },
@@ -687,16 +728,32 @@ document.addEventListener("DOMContentLoaded", function () {
             })
         },
 
-        importSecurityGroups = function (options, groupsData) {
-            var groups = groupsData[0].data,
-                splitGroupsByLevels = function () {
+        importCustomMaps = function (options, customMaps) {
+            return call(options.server, "Get", {
+                credentials: options.credentials,
+                typeName: "SystemSettings"
+            }).then(function (result) {
+                var systemSettings = result[0],
+                    customMapsData = customMaps[0].data;
+                customMapsData && (systemSettings.customWebMapProviderList = customMapsData);
+                // pass on the options to the next promise
+                return call(options.server, "Set", {
+                    credentials: options.credentials,
+                    typeName: "SystemSettings",
+                    entity: systemSettings
+                });
+            })
+        },
+
+        importCustomGroups = function (options, groupsData) {
+            var splitGroupsByLevels = function (groups) {
                     var processedIds = [defaultGroupId],
                         levelItems,
                         levelIds,
                         levels = [],
                         parentIds;
                     do {
-                        levelItems = findItemsWithParents(parentIds);
+                        levelItems = findItemsWithParents(groups, parentIds);
                         levelIds = levelItems.map(function (item) {return item.id});
                         levels.push(levelItems);
                         processedIds = processedIds.concat(levelIds);
@@ -704,21 +761,21 @@ document.addEventListener("DOMContentLoaded", function () {
                     } while (parentIds.length > 0);
                     return levels;
                 },
-                findItemsWithParents = function (oldParentIds) {
+                findItemsWithParents = function (groups, oldParentIds) {
                     return groups.reduce(function (items, group) {
                         if(!oldParentIds) {
-                            group.parent && group.parent.id.indexOf("Group") > -1 && items.push(group);
+                            (!group.parent || (group.parent && group.parent.id.indexOf("Group") > -1)) && items.push(group);
                         } else {
                             group.parent && oldParentIds.indexOf(group.parent.id) > -1 && items.push(group);
                         }
                         return items;
                     }, []);
                 },
-                generateAddGroupRequest = function (group) {
+                generateAddGroupRequest = function (group, groupType) {
                     var oldId = group.id,
                         oldParentId = group.parent && group.parent.id,
-                        newId = options.importedData.securityGroups[oldId],
-                        newParentId = oldParentId && (options.importedData.securityGroups[oldParentId] || oldParentId),
+                        newId = options.importedData[groupType][oldId],
+                        newParentId = oldParentId && (options.importedData[groupType][oldParentId] || oldParentId),
                         request,
                         newGroup;
                     if(group.name && !newId && newParentId) {
@@ -733,32 +790,36 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                     return request;
                 },
-                parseResults = function (levelGroups, results) {
+                parseResults = function (levelGroups, results, groupType) {
                     results.forEach(function (result, index) {
-                        result && (options.importedData.securityGroups[levelGroups[index].id] = result);
+                        result && (options.importedData[groupType][levelGroups[index].id] = result);
                     })
-                },
-                groupsLevels = splitGroupsByLevels(groups);
+                };
 
-            options.importedData.securityGroups = {};
-            return groupsLevels.reduce(function (addPromise, levelGroups, index) {
-                return addPromise.then(function () {
-                    var requests;
-                    requests = levelGroups.reduce(function (requests, levelGroup) {
-                        var addRequest = generateAddGroupRequest(levelGroup);
-                        addRequest && requests.push(addRequest);
-                        return requests;
-                    }, []);
-                    if (requests.length) {
-                        return multiCall(options.server, requests, options.credentials);
-                    } else {
-                        return [];
-                    }
-                }).then(function(previousResult){
-                    parseResults(groupsLevels[index], previousResult);
-                }).then(function(){
-                    return options;
-                });
+            return groupsData.reduce(function (promises, groupTypeData) {
+                var groupType = groupTypeData.type,
+                    groups = groupTypeData.data,
+                    groupsLevels = splitGroupsByLevels(groups);
+                options.importedData[groupType] = {};
+                return groupsLevels.reduce(function (addPromise, levelGroups, index) {
+                    return addPromise.then(function () {
+                        var requests;
+                        requests = levelGroups.reduce(function (requests, levelGroup) {
+                            var addRequest = generateAddGroupRequest(levelGroup, groupType);
+                            addRequest && requests.push(addRequest);
+                            return requests;
+                        }, []);
+                        if (requests.length) {
+                            return multiCall(options.server, requests, options.credentials);
+                        } else {
+                            return [];
+                        }
+                    }).then(function(previousResult){
+                        parseResults(groupsLevels[index], previousResult, groupType);
+                    }).then(function(){
+                        return options;
+                    });
+                }, promises);
             }, new Promise(function(fakeResolver){ return fakeResolver([]); }));
         },
 
@@ -773,6 +834,9 @@ document.addEventListener("DOMContentLoaded", function () {
             return multiCall(options.server, requests, options.credentials).then(function(importedData) {
                 updateImportedData(options, requests, initialData, importedData);
                 return options;
+            }).catch(function (e) {
+                console.error(e);
+                console.log(requests);
             });
         },
 
@@ -784,14 +848,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 switch(entityType) {
                     case "users":
                         requestTypeName = "User";
+                        delete(entityCopy.availableDashboardReports);
+                        delete(entityCopy.activeDashboardReports);
                         if(entityCopy.name !== options.user.name) {
                             entityCopy.password = "1111111";
                             entityCopy.changePassword = "true";
                         } else {
                             method = "Set";
-                            entityCopy = options.user;
+                            entityCopy = extend(true, entity, options.user);
+                            options.user = entityCopy;
                         }
-                        updateGroupsIds(entityCopy, ["companyGroups", "driverGroups"], options.importedData.groups);
+                        updateGroupsIds(entityCopy, ["companyGroups", "driverGroups", "privateUserGroups", "reportGroups"], options.importedData.groups);
                         updateGroupsIds(entityCopy, ["securityGroups"], options.importedData.securityGroups);
                         break;
                     case "devices":
@@ -815,6 +882,23 @@ document.addEventListener("DOMContentLoaded", function () {
                     case "workHolidays":
                         requestTypeName = "WorkHoliday";
                         break;
+                    case "notificationTemplates":
+                        requestTypeName = "NotificationBinaryFile";
+                        delete(entityCopy.id);
+                        break;
+                    case "distributionLists":
+                        requestTypeName = "DistributionList";
+                        entityCopy.recipients && entityCopy.recipients.forEach(function(recipient) {
+                            recipient.user && recipient.user.id && (recipient.user.id = options.importedData.User[recipient.user.id]);
+                            recipient.notificationBinaryFile && recipient.notificationBinaryFile.id &&
+                                (recipient.notificationBinaryFile = {id: options.importedData.NotificationBinaryFile[recipient.notificationBinaryFile.id] || recipient.notificationBinaryFile.id});
+                            updateGroupsIds(recipient, ["group"], options.importedData.groups);
+                            recipient.id && delete(recipient.id);
+                        });
+                        entityCopy.rules && entityCopy.rules.forEach(function(rule) {
+                            rule.id && options.importedData.rules[rule.id] && (rule.id = options.importedData.rules[rule.id]);
+                        });
+                        break;
                 }
                 method === "Add" && delete(entityCopy.id);
                 requests.push([method, {
@@ -825,14 +909,59 @@ document.addEventListener("DOMContentLoaded", function () {
             }, []);
         },
 
+        importDiagnostics = function (options, diagnosticsData) {
+            var diagnostics = diagnosticsData[0].data,
+                requests = diagnostics.reduce(function(requests, diagnostic) {
+                requests.push([
+                    "Get", {
+                        typeName: "Diagnostic",
+                        search: {
+                            id: diagnostic.id
+                        }
+                }]);
+                return requests;
+            }, []);
+            return multiCall(options.server, requests, options.credentials).then(function(importedData) {
+                updateImportedData(options, requests, diagnostics, importedData, null, function(importedItem) {
+                    return importedItem && importedItem.length && importedItem[0].id;
+                });
+                return options;
+            }).catch(function (e) {
+                console.error(e);
+                console.log(requests);
+                return options;
+            });
+        },
+
         importRules = function (options, rulesData) {
             var rules = rulesData[0].data,
+                removeExistedRules = function () {
+                    return call(options.server, "Get", {
+                        credentials: options.credentials,
+                        typeName: "Rule",
+                        search: {
+                            baseType: "Custom"
+                        }
+                    }).then(function (result) {
+                        var requests = result.reduce(function (res, rule) {
+                                res.push(["Remove", {
+                                    typeName: "Rule",
+                                    entity: {
+                                        id: rule.id
+                                    }
+                                }]);
+                                return res;
+                            }, []);
+                        return multiCall(options.server, requests, options.credentials);
+                    })
+                },
                 updateDependencies = function (rules) {
                     var updateConditionsData = function(condition) {
                             delete(condition.id);
                             delete(condition.sequence);
                             switch (condition.conditionType) {
                                 case "RuleWorkHours":
+                                case "AfterRuleWorkHours":
                                     condition.workTime && condition.workTime.id && (condition.workTime.id = options.importedData.WorkTime[condition.workTime.id]);
                                     break;
                                 case "Driver":
@@ -842,26 +971,41 @@ document.addEventListener("DOMContentLoaded", function () {
                                     condition.device && condition.device.id && (condition.device.id = options.importedData.Device[condition.device.id]);
                                     break;
                                 case "EnteringArea":
+                                case "ExitingArea":
+                                case "OutsideArea":
+                                case "InsideArea":
                                     condition.zone ? (condition.zone.id && options.importedData.Zone[condition.zone.id] && (condition.zone.id = options.importedData.Zone[condition.zone.id])) :
                                         (condition.zoneType.id && options.importedData.ZoneType[condition.zoneType.id] && (condition.zoneType.id = options.importedData.ZoneType[condition.zoneType.id]));
                                     break;
+                                case "FilterStatusDataByDiagnostic":
+                                    if (condition.diagnostic && condition.diagnostic.id && !options.importedData.Diagnostic[condition.diagnostic.id]) {
+                                        return false;
+                                    }
+                                    break;
                             }
+                            return true;
                         },
                         checkConditions = function (parentCondition) {
-                            var children = parentCondition.children || [];
-                            updateConditionsData(parentCondition);
-                            children.forEach(function (condition) {
+                            var children;
+                            if (!updateConditionsData(parentCondition)) {
+                                return false;
+                            }
+                            children = parentCondition.children || [];
+                            return children.every(function (condition) {
                                 if (condition.children) {
-                                    checkConditions(condition);
-                                } else {
-                                    updateConditionsData(condition);
+                                    return checkConditions(condition);
                                 }
-                            });
+                                if (!updateConditionsData(condition)) {
+                                    return false;
+                                }
+                                return true;
+                            }, true);
                         };
-                    rules.forEach(function (rule) {
+                    return rules.reduce(function (rulesForImport, rule, index) {
                         updateGroupsIds(rule, "groups", options.importedData.groups);
-                        checkConditions(rule.condition);
-                    });
+                        checkConditions(rule.condition) && rulesForImport.push(rule);
+                        return rulesForImport;
+                    }, []);
                 },
                 getStockRuleParams = function(rule) {
                     var parseDurationInMinutes = function() {
@@ -958,14 +1102,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                     return params;
                 },
-                customTypeGetter = function (request) {
+                customTypeGetter = function () {
                     return "rules";
                 },
-                customIdGetter = function (result) {
-                    return result.id;
+                customIdGetter = function (result, oldId) {
+                    return result.id || oldId;
                 },
                 requests;
-            updateDependencies(rules);
+            rules = updateDependencies(rules);
             requests = rules.reduce(function (requests, rule) {
                 var ruleCopy;
                 if(rule.baseType === "Stock") {
@@ -986,8 +1130,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 return requests;
             }, []);
-            return multiCall(options.server, requests, options.credentials).then(function(importedRules) {
+            return removeExistedRules().then(function () {
+                return multiCall(options.server, requests, options.credentials);
+            }).then(function(importedRules) {
                 updateImportedData(options, requests, rules, importedRules, customTypeGetter, customIdGetter);
+                return options;
+            }).catch(function (e) {
+                console.error(e);
+                console.log(requests);
                 return options;
             });
         },
@@ -995,7 +1145,7 @@ document.addEventListener("DOMContentLoaded", function () {
         updateImportedData = function(options, requests, initialData, importedData, customTypeGetter, customIdGetter) {
             requests.forEach(function (request, index) {
                 var oldId = initialData[index].id,
-                    newId = (customIdGetter ? customIdGetter(importedData[index]) : importedData[index]) || oldId,
+                    newId = customIdGetter ? customIdGetter(importedData[index], oldId) : (importedData[index] || oldId),
                     type = customTypeGetter ? customTypeGetter(request) : request[1].typeName;
                 if(!options.importedData[type]) options.importedData[type] = {};
                 options.importedData[type][oldId] = newId;
@@ -1004,7 +1154,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         importReports = function (options, reportsData) {
             var reports = reportsData[0].data,
-                importTemplates = function (templates) {
+                importTemplatesAndGetReports = function (templates) {
                     var requests = templates.reduce(function (requests, template) {
                             var templateCopy = extend(true, {}, template);
                             if (!template.isSystem) {
@@ -1022,8 +1172,14 @@ document.addEventListener("DOMContentLoaded", function () {
                                 }]);
                             }
                             return requests;
-                        }, []);
-                    return multiCall(options.server, requests, options.credentials);
+                        }, [["GetReportSchedules", {
+                            "includeTemplateDetails": true,
+                            "applyUserFilter": false
+                        }]]);
+                    return multiCall(options.server, requests, options.credentials).then(function(data) {
+                        updateImportedData(options, requests.slice(1), templates, data.slice(1), function () { return "templates" });
+                        return data;
+                    });
                 },
                 getReportsForImport = function (templates, importedTemplates) {
                     return templates.reduce(function (reports, template, templateIndex) {
@@ -1060,21 +1216,58 @@ document.addEventListener("DOMContentLoaded", function () {
                         id && options.importedData.rules[id] && (rule.id = options.importedData.rules[id]);
                     })
                 },
-                importReports = function (reports) {
-                    var requests = reports.reduce(function (requests, report) {
-                            requests.push(["Add", {
+                importReports = function (reports, existedReports) {
+                    var reportsForUpdate = [],
+                        getReportForImport = function (report) {
+                            var templateId = report.template.id,
+                                destination = report.destination,
+                                existedReportData,
+                                method = "Add";
+                            existedReports.some(function (existedReport) {
+                                var existedTemplateId = existedReport.template.id,
+                                    existedDestination = existedReport.destination;
+                                if (existedTemplateId === templateId && existedDestination === destination) {
+                                    existedReportData = existedReport;
+                                    return true;
+                                }
+                            });
+                            if (existedReportData) {
+                                method = "Set";
+                                report.id = existedReportData.id;
+                                reportsForUpdate.push(existedReportData.id);
+                            }
+                            return {
+                                method: method,
+                                report: report
+                            }
+                        },
+                        requests = reports.reduce(function (requests, report) {
+                            var requestData = getReportForImport(report);
+                            requests.push([requestData.method, {
                                 typeName: "CustomReportSchedule",
-                                entity: report
+                                entity: requestData.report
                             }]);
                             return requests;
                         }, []);
+                    /*
+                    existedReports.reduce(function (requests, existedReport) {
+                        reportsForUpdate.indexOf(existedReport.id) === -1 && requests.push([
+                            "Remove", {
+                                typeName: "CustomReportSchedule",
+                                entity: existedReport
+                            }
+                        ]);
+                        return requests;
+                    }, requests);*/
                     return multiCall(options.server, requests, options.credentials);
                 };
             options.importedData.reports = {};
             return new Promise(function (resolve, reject) {
-                importTemplates(reports).then(function (importedTemplates) {
-                    var reportsForImport = getReportsForImport(reports, importedTemplates);
-                    return importReports(reportsForImport);
+                importTemplatesAndGetReports(reports).then(function () {
+                    var existedReports = arguments[0][0],
+                        importedTemplates = [].slice.call(arguments[0], 1),
+                        reportsForImport = getReportsForImport(reports, importedTemplates);
+                    return importReports(reportsForImport, existedReports);
                 }).then(function (importedReports) {
                     resolve(options);
                 }).catch(reject);
@@ -1082,32 +1275,32 @@ document.addEventListener("DOMContentLoaded", function () {
         },
 
         importMiscSettings = function (options, miscData) {
-            miscData[0].data.reduce(function(results, miscItem) {
-                switch(miscItem.name) {
-                    case "mapProvider":
-                        results.then(function() {
-                            return setDefaultMapProvider(options, miscItem.data);
-                        });
-                        break;
-                }
-                return results;
-            }, new Promise(function(resolve) { resolve(); })).then(function () {
-                return options;
-            });
-        },
-
-        setDefaultMapProvider = function (options, providerData) {
-            var promise = new Promise(function(resolve) {
-                resolve();
-            });
-            !providerData.isDefault && promise.then(function() {
+            var miscData = miscData[0].data,
+                providerData = miscData.mapProvider,
+                promise = new Promise(function(resolve) {
+                    resolve();
+                }),
+                updateUserTemplates = function (user, exportedUser, importedTemplatesData) {
+                    Object.keys(importedTemplatesData).forEach(function (oldId) {
+                        var newId = importedTemplatesData[oldId],
+                            availIndex = exportedUser.availableDashboardReports.indexOf(oldId),
+                            activeIndex = exportedUser.activeDashboardReports.indexOf(oldId);
+                        availIndex > -1 && (exportedUser.availableDashboardReports[availIndex] = newId);
+                        activeIndex > -1 && (exportedUser.activeDashboardReports[activeIndex] = newId);
+                    });
+                    user.availableDashboardReports = exportedUser.availableDashboardReports;
+                    user.activeDashboardReports = exportedUser.activeDashboardReports;
+                };
+            promise.then(function() {
                 return call(options.server, "Get", {
                     credentials: options.credentials,
                     typeName: "SystemSettings"
                 }).then(function (result) {
                     var systemSettings = result[0];
-                    systemSettings.mapProvider = providerData.value;
-                    // pass on the options to the next promise
+                    providerData.type === "additional" && (systemSettings.mapProvider = providerData.value);
+                    miscData.isUnsignedAddinsAllowed && (systemSettings.allowUnsignedAddIn = miscData.isUnsignedAddinsAllowed);
+                    miscData.addins && (systemSettings.customerPages = miscData.addins);
+
                     return call(options.server, "Set", {
                         credentials: options.credentials,
                         typeName: "SystemSettings",
@@ -1115,13 +1308,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 })
             });
-
             options.user.defaultMapEngine = providerData.value;
+            updateUserTemplates(options.user, miscData.currentUser, options.importedData.templates);
             return promise.then(function () {
                 return options;
             });
         },
-
 
         /**
          * Send the administrator a success email
@@ -1157,6 +1349,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (CONFIG.debug) {
         elCompanyName.value = "qqq";
+        elDatabaseNameText.value = "qqq";
         elDatabaseName.value = "qqq";
         elPhoneNumber.value = "qqq";
         elFleetSize.value = "qqq";
@@ -1175,6 +1368,7 @@ document.addEventListener("DOMContentLoaded", function () {
     elCompanyName.addEventListener("keyup", function () {
         var splitCompanyName = elCompanyName.value.split(/\s+/);
         var databaseName = splitCompanyName.length ? splitCompanyName[0] : "";
+        elDatabaseNameText.value = databaseName;
         elDatabaseName.value = databaseName;
         updateShortDatabase(databaseName);
     }, false);
@@ -1182,8 +1376,8 @@ document.addEventListener("DOMContentLoaded", function () {
     /**
      * Watch the database name and check it's availability
      */
-    elDatabaseName.addEventListener("keyup", function () {
-        updateShortDatabase(elDatabaseName.value);
+    elDatabaseNameText.addEventListener("keyup", function () {
+        updateShortDatabase(elDatabaseNameText.value);
     });
 
     /**
@@ -1263,9 +1457,9 @@ document.addEventListener("DOMContentLoaded", function () {
         createDatabase(formValues)
             .then(authenticate)
             .then(getUser)
+            .then(uploadConfigFile)
             .then(createClearance)
             .then(setUserDefaults)
-            .then(uploadConfigFile)
             .then(importConfig)
             .then(sendSuccessEmail)
             .then(redirect, error);
