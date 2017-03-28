@@ -85,7 +85,7 @@
                 return new Promise(function(resolve, reject) {
                     importSequence.reduce(function(result, levelImportParams) {
                             var dataForImport = levelImportParams.types.map(function(entityType) {
-                                levelImportParams.filter && levelImportParams.filter(config[entityType], entityType);
+                                levelImportParams.filter && config[entityType] && levelImportParams.filter(config[entityType], entityType);
                                 return {type: entityType, data: config[entityType]};
                             });
 
@@ -336,7 +336,7 @@
                         var type = entityData.type,
                             data = entityData.data;
                         initialData = initialData.concat(data);
-                        return requests.concat(generateAddRequests(data, type))
+                        return data ? requests.concat(generateAddRequests(data, type)) : requests;
                     }, []);
                 return multiCall(server, requests, credentials).then(function(importedData) {
                     updateImportedData(requests, initialData, importedData);
@@ -347,7 +347,7 @@
             },
 
             generateAddRequests = function (entities, entityType) {
-                return entities.reduce(function (requests, entity) {
+                return entities && entities.reduce(function (requests, entity) {
                     var method = "Add",
                         entityCopy = extend(true, {}, entity),
                         requestTypeName;
