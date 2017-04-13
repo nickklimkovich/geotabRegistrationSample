@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var CONFIG = {
             // This is the host will post to to create the database. This should be the root server in the federation.
-            defaultHost: "my.geotab.com",
+            defaultHost: "my1.geotab.com",
             debug: false,
             // Local debug config (you must create DB and admin user manually)
             debugDBConfig: {
