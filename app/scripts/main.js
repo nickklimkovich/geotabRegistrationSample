@@ -613,6 +613,7 @@ document.addEventListener("DOMContentLoaded", function () {
     elRegistrationServerText.addEventListener("blur", function () {
         host = elRegistrationServerText.value;
         updateShortDatabase(elDatabaseNameText.value);
+        renderCaptcha();
     });
 
     /**
