@@ -256,7 +256,7 @@
 
             importCustomGroups = function (groupsData) {
                 var splitGroupsByLevels = function (groups) {
-                        var processedIds = [defaultGroupId],
+                        var processedIds = [],
                             levelItems,
                             levelIds,
                             levels = [],
