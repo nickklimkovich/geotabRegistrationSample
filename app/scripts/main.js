@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var CONFIG = {
             // This is the host will post to to create the database. This should be the root server in the federation.
-            defaultHost: "my1.geotab.com",
+            defaultHost: "my3.geotab.com",
             debug: false,
             // Local debug config (you must create DB and admin user manually)
             debugDBConfig: {
@@ -246,6 +246,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 database: elDatabaseName.value,
                 userName: elEmail.value,
                 password: elPassword.value,
+                welcomeText: "",
+                language: "en",
                 companyDetails: {
                     companyName: elCompanyName.value,
                     firstName: elFirstName.value,
@@ -254,7 +256,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     resellerName: "ABC Fleets",
                     fleetSize: parseInt(elFleetSize.value, 10) || 0,
                     comments: "",
-                    signUpForNews: elUpdates.checked
+                    signUpForNews: elUpdates.checked,
+                    timeZoneId: elTimeZone.value
                 }
             };
         },
@@ -335,16 +338,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 return createDebugDatabase(params);
             }
             var processResult = function (results) {
-                var parts = results.split("/");
-
+                var path = results.path === "ThisServer" ? location.host : results.path;
+                
                 return {
-                    server: parts[0],
-                    database: parts[1],
-                    userName: params.userName,
-                    password: params.password
+                    server: path,
+                    credentials: results.credentials
                 };
             };
-            return call(host, "CreateDatabase", params).then(processResult);
+            return call(host, "CreateDatabase2", params).then(processResult);
         },
 
 
@@ -363,24 +364,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                     reject("There is no DEBUG_CONFIG");
                 }
-            });
-        },
-
-        /**
-         * Authenticate the user against the new database
-         * @param options {object}
-         * @returns {object} - options with credentials
-         */
-        authenticate = function (options) {
-            return call(options.server, "Authenticate", {
-                userName: options.userName,
-                password: options.password,
-                database: options.database
-            }).then(function (results) {
-                return {
-                    server: options.server,
-                    credentials: results.credentials
-                };
             });
         },
 
@@ -691,7 +674,6 @@ document.addEventListener("DOMContentLoaded", function () {
         showLoading();
 
         createDatabase(formValues)
-            .then(authenticate)
             .then(getUser)
             .then(uploadConfigFile)
             .then(createClearance)
