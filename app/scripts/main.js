@@ -246,6 +246,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 database: elDatabaseName.value,
                 userName: elEmail.value,
                 password: elPassword.value,
+                welcomeText: "Welcome to ABC Fleets",
+                language: "en",
                 companyDetails: {
                     companyName: elCompanyName.value,
                     firstName: elFirstName.value,
@@ -254,7 +256,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     resellerName: "ABC Fleets",
                     fleetSize: parseInt(elFleetSize.value, 10) || 0,
                     comments: "",
-                    signUpForNews: elUpdates.checked
+                    signUpForNews: elUpdates.checked,
+                    timeZoneId: elTimeZone.value
                 }
             };
         },
@@ -335,16 +338,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 return createDebugDatabase(params);
             }
             var processResult = function (results) {
-                var parts = results.split("/");
+                var path = results.path === "ThisServer" ? host : results.path;
 
                 return {
-                    server: parts[0],
-                    database: parts[1],
-                    userName: params.userName,
-                    password: params.password
+                    server: path,
+                    credentials: results.credentials
                 };
             };
-            return call(host, "CreateDatabase", params).then(processResult);
+            return call(host, "CreateDatabase2", params).then(processResult);
         },
 
 
@@ -363,24 +364,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                     reject("There is no DEBUG_CONFIG");
                 }
-            });
-        },
-
-        /**
-         * Authenticate the user against the new database
-         * @param options {object}
-         * @returns {object} - options with credentials
-         */
-        authenticate = function (options) {
-            return call(options.server, "Authenticate", {
-                userName: options.userName,
-                password: options.password,
-                database: options.database
-            }).then(function (results) {
-                return {
-                    server: options.server,
-                    credentials: results.credentials
-                };
             });
         },
 
@@ -541,24 +524,13 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         },
 
-
-        /**
-         * Send the administrator a success email
-         * @param options {object}
-         * @returns {*} - send email results (nothing)
-         */
-        sendSuccessEmail = function (options) {
-            var credentials = options.credentials,
-                user = options.user,
-                welcomeMessage = "Welcome to MyGeotab, you can login to your database via this url: https://" + host + "/" + credentials.database;
-
-            return call(options.server, "SendEmail", {
-                credentials: credentials,
-                email: user.name,
-                subject: "Registration Success",
-                body: welcomeMessage,
-                bodyHtml: "<p>" + welcomeMessage + "<p>"
+        logout = function (options) {
+            return call(options.server, "Logoff", {
+                credentials: options.credentials
             }).then(function () {
+                // pass on the options to the next promise
+                return options;
+            }, function () {
                 // pass on the options to the next promise
                 return options;
             });
@@ -691,13 +663,12 @@ document.addEventListener("DOMContentLoaded", function () {
         showLoading();
 
         createDatabase(formValues)
-            .then(authenticate)
             .then(getUser)
             .then(uploadConfigFile)
             .then(createClearance)
             .then(setUserDefaults)
             .then(importConfig)
-            .then(sendSuccessEmail)
+            .then(logout)
             .then(redirect)
             .catch(error);
     });
