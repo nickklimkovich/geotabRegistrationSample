@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
             debugDBConfig: {
                 host: "127.0.0.1",
                 db: "temp", // loacal DB name
-                user: "qwe@qwe.qwe", // DB admin user
+                user: "qwe@qwe.com", // DB admin user
                 password: "qweqwe" // DB admin user password
             },
             allowedSecurityRules: [ // If not empty array then Restricted Admin user will be created with permission provided
@@ -353,9 +353,11 @@ document.addEventListener("DOMContentLoaded", function () {
             var processResult = function () {
                 return {
                     server: CONFIG.debugDBConfig.host,
-                    database: CONFIG.debugDBConfig.db,
-                    userName: CONFIG.debugDBConfig.user,
-                    password: CONFIG.debugDBConfig.password
+                    credentials: {
+                        database: CONFIG.debugDBConfig.db,
+                        userName: CONFIG.debugDBConfig.user,
+                        password: CONFIG.debugDBConfig.password
+                    }
                 };
             };
             return new Promise(function (resolve, reject) {

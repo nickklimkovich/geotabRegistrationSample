@@ -56,7 +56,8 @@
             "TextToSpeech",
             "TextToSpeechAllowDelay",
             "WebRequest"
-        ];
+        ],
+        MAX_REQUEST_SIZE_LIMIT = 4194304;
 
     global.configImporter = function (config, user, server, credentials) {
         var newUser = extend(true, {}, user),
@@ -661,28 +662,49 @@
             importReports = function (reportsData) {
                 var reports = reportsData[0].data,
                     importTemplatesAndGetReports = function (templates) {
+                        var getReportsRequest = ["GetReportSchedules", {
+                                "includeTemplateDetails": true,
+                                "applyUserFilter": false
+                            }],
+                            lastGroupSize = JSON.stringify(getReportsRequest).length * 2;
                         var requests = templates.reduce(function (requests, template) {
-                            var templateCopy = extend(true, {}, template);
+                            var templateCopy = extend(true, {}, template),
+                                request,
+                                requestSize; 
                             if (!template.isSystem) {
                                 delete templateCopy.id;
                                 delete templateCopy.reports;
-                                requests.push(["Add", {
+                                request = ["Add", {
                                     typeName: "ReportTemplate",
                                     entity: templateCopy
-                                }]);
+                                }];
                             } else {
                                 delete templateCopy.binaryData;
-                                requests.push(["Set", {
+                                request = ["Set", {
                                     typeName: "ReportTemplate",
                                     entity: templateCopy
-                                }]);
+                                }];
+                            }
+                            requestSize = JSON.stringify(request).length * 2;
+                            if (requestSize > MAX_REQUEST_SIZE_LIMIT) {
+                                throw new Error(`Too large report template. Max size is: ${MAX_REQUEST_SIZE_LIMIT} bytes.`);
+                            }
+                            if (lastGroupSize + requestSize > MAX_REQUEST_SIZE_LIMIT) {
+                                requests.push([request]);
+                                lastGroupSize = requestSize;
+                            } else {
+                                requests[requests.length - 1].push(request);
+                                lastGroupSize += requestSize;
                             }
                             return requests;
-                        }, [["GetReportSchedules", {
-                            "includeTemplateDetails": true,
-                            "applyUserFilter": false
-                        }]]);
-                        return multiCall(server, requests, credentials).then(function(data) {
+                        }, [[getReportsRequest]]);
+                        return Promise.all(requests.map(function(group) {
+                            return multiCall(server, group, credentials);
+                        })).then(function(grouppedData) {
+                            // Concat groupped data into one array
+                            var data = grouppedData.reduce(function(res, groupData) {
+                                return res.concat(groupData);
+                            }, []);
                             updateImportedData(requests.slice(1), templates, data.slice(1), function () { return "templates" });
                             return data;
                         });
