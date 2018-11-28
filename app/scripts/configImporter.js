@@ -648,7 +648,7 @@
             },
 
             updateImportedData = function(requests, initialData, newData, customTypeGetter, customIdGetter) {
-                requests.forEach(function (request, index) {
+                requests && requests.length && requests.forEach(function (request, index) {
                     var oldId = initialData[index].id,
                         newId = customIdGetter ? customIdGetter(newData[index], oldId) : (newData[index] || oldId),
                         type = customTypeGetter ? customTypeGetter(request) : request[1].typeName;
@@ -700,12 +700,11 @@
                         }, [[getReportsRequest]]);
                         return Promise.all(requests.map(function(group) {
                             return multiCall(server, group, credentials);
-                        })).then(function(grouppedData) {
+                        })).then(function(response) {
+                            let ungroupData = grouppedData => grouppedData.reduce((res, groupData) => res.concat(groupData), []);
                             // Concat groupped data into one array
-                            var data = grouppedData.reduce(function(res, groupData) {
-                                return res.concat(groupData);
-                            }, []);
-                            updateImportedData(requests.slice(1), templates, data.slice(1), function () { return "templates" });
+                            let data = ungroupData(response);
+                            updateImportedData(ungroupData(requests).slice(1), templates, data.slice(1), () => "templates");
                             return data;
                         });
                     },
@@ -789,10 +788,9 @@
                         return multiCall(server, requests, credentials);
                     };
                 importedData.reports = {};
-                return importTemplatesAndGetReports(reports).then(function () {
-                    var existedReports = arguments[0][0],
-                        importedTemplates = [].slice.call(arguments[0], 1),
-                        reportsForImport = getReportsForImport(reports, importedTemplates);
+                importedData.templates = {};
+                return importTemplatesAndGetReports(reports).then(([existedReports, ...importedTemplates]) => {
+                    let reportsForImport = getReportsForImport(reports, importedTemplates);
                     return importReports(reportsForImport, existedReports);
                 });
             },
