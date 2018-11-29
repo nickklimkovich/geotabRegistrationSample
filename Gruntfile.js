@@ -329,10 +329,14 @@ module.exports = function (grunt) {
         dest: '.tmp/styles/',
         src: '{,*/}*.css'
       },
-      php: {
+      heroku: {
           files:[{
             dest: '<%= config.dist %>/index.php',
             src: '<%= config.app %>/index.php'
+          },
+          {
+            dest: '<%= config.dist %>/composer.json',
+            src: '<%= config.app %>/composer.json'
           }]
       }
     },
@@ -461,6 +465,6 @@ module.exports = function (grunt) {
 
   grunt.registerTask('heroku', [
     'build',
-    'copy:php'
+    'copy:heroku'
   ]);
 };
