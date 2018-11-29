@@ -144,6 +144,12 @@ module.exports = function (grunt) {
           src: '{,*/}*.js',
           dest: '.tmp/scripts',
           ext: '.js'
+        }, {
+            expand: true,
+            cwd: '.tmp/concat/scripts',
+            src: 'main.js',
+            dest: '.tmp/concat/scripts',
+            ext: '.js'
         }]
       },
       test: {
@@ -322,6 +328,12 @@ module.exports = function (grunt) {
         cwd: '<%= config.app %>/styles',
         dest: '.tmp/styles/',
         src: '{,*/}*.css'
+      },
+      php: {
+          files:[{
+            dest: '<%= config.dist %>/index.php',
+            src: '<%= config.app %>/index.php'
+          }]
       }
     },
 
@@ -358,7 +370,34 @@ module.exports = function (grunt) {
         'imagemin',
         'svgmin'
       ]
-    }
+    },
+
+    uglify: {
+      dist: {
+        files: {
+          '<%= config.dist %>/scripts/main.js': [
+            '.tmp/concat/scripts/main.js'
+          ],
+          '<%= config.dist %>/scripts/vendor.js': [
+            '.tmp/concat/scripts/vendor.js'
+          ]
+        }
+      }
+    },
+
+    cssmin: {
+      dist: {
+        files: {
+          '<%= config.dist %>/styles/main.css': [
+            '.tmp/styles/{,*/}*.css',
+            '<%= config.app %>/styles/{,*/}*.css'
+          ],
+          '<%= config.dist %>/styles/vendor.css': [
+            '.tmp/concat/styles/vendor.css'
+          ]
+        }
+      }
+    },
   });
 
 
@@ -402,14 +441,14 @@ module.exports = function (grunt) {
     'clean:dist',
     'wiredep',
     'useminPrepare',
-    'concurrent:dist',
     'postcss',
     'concat',
-    'cssmin',
-    'uglify',
+    'concurrent:dist',
+    'cssmin:dist',
+    'uglify:dist',
     'copy:dist',
     'modernizr',
-    'filerev',
+    // 'filerev',
     'usemin',
     'htmlmin'
   ]);
@@ -418,5 +457,10 @@ module.exports = function (grunt) {
     'newer:eslint',
     'test',
     'build'
+  ]);
+
+  grunt.registerTask('heroku', [
+    'build',
+    'copy:php'
   ]);
 };
