@@ -230,7 +230,7 @@ document.addEventListener("DOMContentLoaded", function () {
         renderCaptcha = function () {
             captchaId = uuid.v4();
             elCaptchaImage.setAttribute("src", "https://" + host + "/apiv1/GenerateCaptcha?id=" + captchaId);
-            elCaptchaAnswer.value = "";
+            elCaptchaAnswer.value = CONFIG.debug ? "GEOTAB" : "";
         },
 
         /**
@@ -563,6 +563,7 @@ document.addEventListener("DOMContentLoaded", function () {
         elEmail.value = "qqq@qqq.com";
         elPassword.value = "qqq";
         elConfirmPassword.value = "qqq";
+        elCaptchaAnswer.value = "GEOTAB";
     }
 
     // Wire up events

@@ -347,6 +347,19 @@
                 });
             },
 
+            generatePassword = function () {
+                var symbols = "!@#$%^&*(){}[]?",
+                    passw = uuid.v4().slice(0, 8).split(""), // 8 symbols array
+                    rand = function (max) {
+                        return Math.floor(Math.random() * max); // 0 .. max
+                    },
+                    symbol = 
+                    upperCaseLetter = String.fromCharCode(rand(26) + 65);
+                passw.splice(rand(8), 0, upperCaseLetter);
+                passw.splice(rand(9), 0, symbols[rand(symbols.length)]);
+                return passw.join("");
+            },
+
             generateAddRequests = function (entities, entityType) {
                 return entities && entities.reduce(function (requests, entity) {
                     var method = "Add",
@@ -358,7 +371,7 @@
                             delete(entityCopy.availableDashboardReports);
                             delete(entityCopy.activeDashboardReports);
                             if(entityCopy.name !== newUser.name) {
-                                entityCopy.password = "1111111";
+                                entityCopy.password = generatePassword();
                                 entityCopy.changePassword = "true";
                             } else {
                                 method = "Set";
@@ -397,8 +410,11 @@
                             requestTypeName = "DistributionList";
                             entityCopy.recipients && entityCopy.recipients.forEach(function (recipient) {
                                 recipient.user && recipient.user.id && (recipient.user.id = importedData.User[recipient.user.id]);
-                                recipient.notificationBinaryFile && recipient.notificationBinaryFile.id &&
-                                (recipient.notificationBinaryFile = {id: importedData.NotificationBinaryFile[recipient.notificationBinaryFile.id] || recipient.notificationBinaryFile.id});
+                                if (recipient.notificationBinaryFile && recipient.notificationBinaryFile.id) {
+                                    recipient.notificationBinaryFile = {
+                                        id: importedData.NotificationBinaryFile && importedData.NotificationBinaryFile[recipient.notificationBinaryFile.id] || recipient.notificationBinaryFile.id
+                                    };
+                                }
                                 updateGroupsIds(recipient, ["group"], importedData.groups);
                                 recipient.id && delete(recipient.id);
                             });
