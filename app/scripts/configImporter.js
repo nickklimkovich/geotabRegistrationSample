@@ -351,9 +351,8 @@
                 var symbols = "!@#$%^&*(){}[]?",
                     passw = uuid.v4().slice(0, 8).split(""), // 8 symbols array
                     rand = function (max) {
-                        return Math.floor(Math.random() * max); // 0 .. max
+                        return Math.floor(Math.random() * (max + 1)); // 0 .. max
                     },
-                    symbol = 
                     upperCaseLetter = String.fromCharCode(rand(26) + 65);
                 passw.splice(rand(8), 0, upperCaseLetter);
                 passw.splice(rand(9), 0, symbols[rand(symbols.length)]);
