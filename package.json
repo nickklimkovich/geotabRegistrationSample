@@ -18,13 +18,13 @@
     "grunt-filerev": "^2.2.0",
     "grunt-mocha": "^0.4.12",
     "grunt-modernizr": "^0.6.0",
-    "grunt-newer": "^1.1.0",
+    "grunt-newer": "^1.3.0",
     "grunt-postcss": "^0.5.3",
     "grunt-svgmin": "^2.0.1",
     "grunt-usemin": "^3.0.0",
     "grunt-wiredep": "^2.0.0",
     "jit-grunt": "^0.9.1",
-    "time-grunt": "^1.1.0"
+    "time-grunt": "^1.4.0"
   },
   "engines": {
     "node": ">=0.10.0"

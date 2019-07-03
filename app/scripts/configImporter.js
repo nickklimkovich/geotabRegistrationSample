@@ -75,7 +75,8 @@
                     {types: ["groups"], importer: importGroups},
                     {types: ["securityGroups"], importer: importCustomGroups},
                     {types: ["customMaps"], importer: importCustomMaps},
-                    {types: ["workHolidays", "workTimes", "zoneTypes", "users"], importer: importGroupsOfEntities},
+                    {types: ["workHolidays", "workTimes", "zoneTypes"], importer: importGroupsOfEntities},
+                    {types: ["users"], importer: importUsers},
                     {types: ["diagnostics"], importer: importDiagnostics},
                     {types: ["zones", "devices", "notificationTemplates"], importer: importGroupsOfEntities},
                     {types: ["rules"], importer: importRules},
@@ -357,6 +358,59 @@
                 passw.splice(rand(8), 0, upperCaseLetter);
                 passw.splice(rand(9), 0, symbols[rand(symbols.length)]);
                 return passw.join("");
+            },
+
+            importUsers = function (usersData) {
+                var users = usersData[0].data,
+                    inactiveUsers = [],
+                    method = "Add",
+                    requests = users.reduce(function(requests, user) {
+                        var entityCopy = extend(true, {}, user);
+                        delete(entityCopy.availableDashboardReports);
+                        delete(entityCopy.activeDashboardReports);
+                        if(entityCopy.name !== newUser.name) {
+                            entityCopy.password = generatePassword();
+                            entityCopy.changePassword = "true";
+                            delete(entityCopy.id);
+                            if (new Date(user.activeTo) < new Date()) {
+                                inactiveUsers.push(user);
+                            }
+                        } else {
+                            method = "Set";
+                            entityCopy = extend(true, entity, newUser);
+                            newUser = entityCopy;
+                        }
+                        updateGroupsIds(entityCopy, ["companyGroups", "driverGroups", "privateUserGroups", "reportGroups"], importedData.groups);
+                        updateGroupsIds(entityCopy, ["securityGroups"], importedData.securityGroups);
+
+                        requests.push([
+                            method, {
+                                typeName: "User",
+                                entity: entityCopy
+                            }]);
+                        return requests;
+                    }, []);
+                return multiCall(server, requests, credentials).then(function(res) {
+                    updateImportedData(requests, users, res);
+                }).then(function() { // Disactivate users that should be inactive
+                    var updateRequests = [];
+                    if(inactiveUsers.length) {
+                        updateRequests = inactiveUsers.reduce(function(requests, user) {
+                            requests.push(["Set", {
+                                typeName: "User",
+                                entity: {
+                                    id: importedData.User[user.id],
+                                    activeTo: user.activeTo
+                                }
+                            }]);
+                            return requests;
+                        }, []);
+                    }
+                    return multiCall(server, updateRequests, credentials);
+                }).catch(function (e) {
+                    console.error(e);
+                    console.log(requests);
+                });
             },
 
             generateAddRequests = function (entities, entityType) {
