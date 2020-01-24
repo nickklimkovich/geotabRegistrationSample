@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 (function (global) {
     var extend = function() {
             var args = arguments,
@@ -373,6 +374,7 @@
                         delete(entityCopy.availableDashboardReports);
                         delete(entityCopy.activeDashboardReports);
                         if(entityCopy.name !== newUser.name) {
+                            method = "Add";
                             entityCopy.password = generatePassword();
                             entityCopy.changePassword = "true";
                             delete(entityCopy.id);
@@ -381,8 +383,11 @@
                             }
                         } else {
                             method = "Set";
-                            entityCopy = extend(true, entity, newUser);
-                            newUser = entityCopy;
+                            //todo Brett changed up - not working methinks
+                            return requests;
+                            // entityCopy = extend(true, entity, newUser);
+                            // entityCopy = extend(true, {}, newUser);
+                            // newUser = entityCopy;
                         }
                         updateGroupsIds(entityCopy, ["companyGroups", "driverGroups", "privateUserGroups", "reportGroups"], importedData.groups);
                         updateGroupsIds(entityCopy, ["securityGroups"], importedData.securityGroups);
