@@ -5,13 +5,13 @@ document.addEventListener("DOMContentLoaded", function () {
     var CONFIG = {
             // This is the host will post to to create the database. This should be the root server in the federation.
             defaultHost: "my1.geotab.com",
-            debug: false,
+            debug: true,
             // Local debug config (you must create DB and admin user manually)
             debugDBConfig: {
-                host: "127.0.0.1",
-                db: "temp", // loacal DB name
-                user: "qwe@qwe.com", // DB admin user
-                password: "qweqwe" // DB admin user password
+                host: host_Test,
+                db: db_Test, // loacal DB name
+                user: user_Test, // DB admin user
+                password: password_Test // DB admin user password
             },
             allowedSecurityRules: [ // If not empty array then Restricted Admin user will be created with permission provided
                 //"AboutCheckmate",
@@ -551,18 +551,18 @@ document.addEventListener("DOMContentLoaded", function () {
     elRegistrationServerText.value = host;
 
     if (CONFIG.debug) {
-        elCompanyName.value = "qqq";
-        elDatabaseNameText.value = "qqq";
-        elDatabaseName.value = "qqq";
+        elCompanyName.value = "Brett_Test";
+        elDatabaseNameText.value = "Brett_Test17";
+        elDatabaseName.value = "Brett_Test17";
         elPhoneNumber.value = "qqq";
         elFleetSize.value = "qqq";
 
         elRegistrationServerText.value = CONFIG.debugDBConfig.host;
-        elFirstName.value = "qqq";
-        elLastName.value = "qqq";
-        elEmail.value = "qqq@qqq.com";
-        elPassword.value = "qqq";
-        elConfirmPassword.value = "qqq";
+        elFirstName.value = "Brett";
+        elLastName.value = "Kelley";
+        elEmail.value = "brettkelley@geotab.com";
+        elPassword.value = password_Test;
+        elConfirmPassword.value = password_Test;
         elCaptchaAnswer.value = "GEOTAB";
     }
 
