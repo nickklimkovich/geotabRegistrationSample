@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // jshint devel:true
 document.addEventListener("DOMContentLoaded", function () {
     "use strict";

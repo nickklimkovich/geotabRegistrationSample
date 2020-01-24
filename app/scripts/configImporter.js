@@ -92,6 +92,10 @@
                             });
 
                             return result.then(function () {
+                                console.log(`importer: ${levelImportParams.importer.name}`);
+                                dataForImport.forEach((item)=> {
+                                    console.log(item.type);
+                                });
                                 return levelImportParams.importer(dataForImport);
                             });
                         }, getResolvedPromise())
