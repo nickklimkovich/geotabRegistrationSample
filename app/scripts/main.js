@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
         elImportFile = document.querySelector("#importFile"),
 
         elSubmit = document.querySelector("#submit"),
+        elTestButton = document.getElementById('testBtn'),
 
         elRequiredInputs = document.querySelectorAll("input[required]"),
 
@@ -633,6 +634,56 @@ document.addEventListener("DOMContentLoaded", function () {
      * Hide error message on click
      */
     elErrorClose.addEventListener("click", hideError);
+
+    elTestButton.addEventListener("click", function (){
+        // var sessionId = 'test1234';
+        // var formValues = getFormValues();
+        // call()
+
+        // CONFIG.debugDBConfig.userName;
+        var credentialsLogin = {
+            "database": "brettk",
+            "sessionId": "13438357422112669548",
+            "userName": "brettkelley@geotab.com",
+            "password": CONFIG.debugDBConfig.password
+        };
+
+        var credentialsSession = {
+            "database": "brettk",
+            "sessionId": "13438357422112669548",
+            "userName": "brettkelley@geotab.com"
+        };
+
+        call(CONFIG.debugDBConfig.host, "Get", {
+            credentials: credentialsLogin,
+            typeName: "Device"
+        })
+        .then(() => {
+            for(i = 0; i < 50; i++) {
+                call(CONFIG.debugDBConfig.host, "Get", {
+                    credentials: credentialsSession,
+                    typeName: "Device"
+                })
+                .then((results)=>{
+                    console.log(`iteration: ${i}, results.length: ${results.length}`);
+                    results.forEach((result)=>{
+                        console.log(result.name);
+                    });
+                })
+                .catch(error);
+            }})
+            .catch(error);
+
+        // call(CONFIG.debugDBConfig.host, "Get", {
+        //     credentials: credentials,
+        //     typeName: "Device"
+        // })
+        // .then((results)=>{
+        //     console.log(`iteration2: ${results}`);
+        // })
+        // .catch(error);
+
+    });
 
     /**
      * Handel form submit
