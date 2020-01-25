@@ -640,6 +640,9 @@ document.addEventListener("DOMContentLoaded", function () {
         // var formValues = getFormValues();
         // call()
 
+        var sessionIdGenerate = (Math.floor((Math.random() * 1000000000000000) + 1)).toString();
+        console.log(sessionIdGenerate);
+
         // CONFIG.debugDBConfig.userName;
         var credentialsLogin = {
             "database": "brettk",
@@ -654,12 +657,18 @@ document.addEventListener("DOMContentLoaded", function () {
             "userName": "brettkelley@geotab.com"
         };
 
+                //call that does not seem to require credentials
+        // call(CONFIG.debugDBConfig.host, "GetTimeZones")
+        // .then(function (timeZones) {
+        //     console.log(timeZones);
+        // })
+
         call(CONFIG.debugDBConfig.host, "Get", {
             credentials: credentialsLogin,
             typeName: "Device"
         })
         .then(() => {
-            for(i = 0; i < 50; i++) {
+            for(i = 0; i < 30; i++) {
                 call(CONFIG.debugDBConfig.host, "Get", {
                     credentials: credentialsSession,
                     typeName: "Device"
@@ -670,9 +679,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         console.log(result.name);
                     });
                 })
-                .catch(error);
-            }})
-            .catch(error);
+        .catch(error);
 
         // call(CONFIG.debugDBConfig.host, "Get", {
         //     credentials: credentials,
