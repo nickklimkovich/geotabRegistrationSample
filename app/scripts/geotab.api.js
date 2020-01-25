@@ -90,6 +90,7 @@
         }
 
         xhr.timeout = timeout;
+        console.log(rpcString);
         xhr.send('JSON-RPC=' + encodeURIComponent(rpcString));
       });
     },
