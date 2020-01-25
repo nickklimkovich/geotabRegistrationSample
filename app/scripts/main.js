@@ -658,14 +658,15 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
                 //call that does not seem to require credentials
-        // call(CONFIG.debugDBConfig.host, "GetTimeZones")
-        // .then(function (timeZones) {
-        //     console.log(timeZones);
-        // })
-
-        call(CONFIG.debugDBConfig.host, "Get", {
-            credentials: credentialsLogin,
-            typeName: "Device"
+        call(CONFIG.debugDBConfig.host, "GetTimeZones")
+        .then(function (timeZones) {
+            console.log(timeZones);
+        })
+        .then(() => {
+            call(CONFIG.debugDBConfig.host, "Get", {
+                credentials: credentialsLogin,
+                typeName: "Device"
+            })
         })
         .then(() => {
             for(i = 0; i < 30; i++) {
@@ -679,17 +680,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         console.log(result.name);
                     });
                 })
+            };
+        })
         .catch(error);
-
-        // call(CONFIG.debugDBConfig.host, "Get", {
-        //     credentials: credentials,
-        //     typeName: "Device"
-        // })
-        // .then((results)=>{
-        //     console.log(`iteration2: ${results}`);
-        // })
-        // .catch(error);
-
     });
 
     /**
