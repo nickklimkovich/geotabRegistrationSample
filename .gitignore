@@ -5,3 +5,4 @@ bower_components
 .idea/
 package-lock.json
 app/scripts/TestData.js
+debugging
