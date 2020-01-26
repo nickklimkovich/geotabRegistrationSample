@@ -635,57 +635,96 @@ document.addEventListener("DOMContentLoaded", function () {
      */
     elErrorClose.addEventListener("click", hideError);
 
+    var api = GeotabApi(function (authenticateCallback) {
+        // authenticateCallback('my.geotab.com', 'database', 'user@example.com', 'password', function(err) {
+        authenticateCallback('my.geotab.com', 'brettk', 'brettkelley@geotab.com', CONFIG.debugDBConfig.password, function(err) {
+            console.error(err);
+        });
+    });
+
+    var getDevice = function() {
+        api.call('Get', {
+            typeName: 'Device',
+            resultsLimit: 1
+        }, function (result) {
+            if (result) {
+                console.log(result);
+            }
+        }, function (err) {
+            console.error(err);
+        });
+    };
+
     elTestButton.addEventListener("click", function (){
-        // var sessionId = 'test1234';
-        // var formValues = getFormValues();
-        // call()
+        // Sample API invocation retrieves a single "Device" object
+        api.call('Get', {
+            typeName: 'Device',
+            resultsLimit: 1
+        }, function (result) {
+            if (result) {
+                console.log(result);
 
+                api.getSession(function (session) {
+                    console.log(session);
+                });
 
-        var session = '13438357422112669548';
-        // var session = '1234';
+            }
+        }, function (err) {
+            console.error(err);
+        });
+    });
+
+    // elTestButton.addEventListener("click", function (){
+    //     // var sessionId = 'test1234';
+    //     // var formValues = getFormValues();
+    //     // call()
+
+    //     var loginResult = getLoginResult();
+    //     // var session = '13438357422112669548';
+    //     var session = '1234';
         
 
-        // CONFIG.debugDBConfig.userName;
-        var credentialsLogin = {
-            "database": "brettk",
-            "sessionId": session,
-            "userName": "brettkelley@geotab.com",
-            "password": CONFIG.debugDBConfig.password
-        };
+    //     // CONFIG.debugDBConfig.userName;
+    //     var credentialsLogin = {
+    //         "database": "brettk",
+    //         "sessionId": session,
+    //         "userName": "brettkelley@geotab.com",
+    //         "password": CONFIG.debugDBConfig.password
+    //     };
 
-        var credentialsSession = {
-            "database": "brettk",
-            "sessionId": session,
-            "userName": "brettkelley@geotab.com"
-        };
+    //     var credentialsSession = {
+    //         "database": "brettk",
+    //         "sessionId": session,
+    //         "userName": "brettkelley@geotab.com"
+    //     };
 
-                //call that does not seem to require credentials
-        call(CONFIG.debugDBConfig.host, "GetTimeZones")
-        .then(function (timeZones) {
-            console.log(timeZones);
-        })
-        .then(() => {
-            call(CONFIG.debugDBConfig.host, "Get", {
-                credentials: credentialsLogin,
-                typeName: "Device"
-            });
-        })
-        .then(() => {
-            for(i = 0; i < 30; i++) {
-                call(CONFIG.debugDBConfig.host, "Get", {
-                    credentials: credentialsSession,
-                    typeName: "Device"
-                })
-                .then((results)=>{
-                    console.log(`iteration: ${i}, results.length: ${results.length}`);
-                    results.forEach((result)=>{
-                        console.log(result.name);
-                    });
-                });
-            }
-        })
-        .catch(error);
-    });
+    //             //call that does not seem to require credentials
+    //     call(CONFIG.debugDBConfig.host, "GetTimeZones")
+    //     .then(function (timeZones) {
+    //         console.log(timeZones);
+    //     })
+    //     .then(() => {
+    //         call(CONFIG.debugDBConfig.host, "Get", {
+    //             credentials: credentialsLogin,
+    //             typeName: "Device"
+    //         });
+    //     })
+    //     .then(() => {
+    //         for(i = 0; i < 30; i++) {
+    //             call(CONFIG.debugDBConfig.host, "Get", {
+    //                 credentials: credentialsSession,
+    //                 typeName: "Device"
+    //             })
+    //             .then((results)=>{
+    //                 console.log(`iteration: ${i}, results.length: ${results.length}`);
+    //                 results.forEach((result)=>{
+    //                     console.log(result.name);
+    //                 });
+    //             });
+    //         }
+    //     })
+    //     .catch(error);
+    // });
 
     /**
      * Handel form submit
