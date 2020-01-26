@@ -640,20 +640,22 @@ document.addEventListener("DOMContentLoaded", function () {
         // var formValues = getFormValues();
         // call()
 
-        var sessionIdGenerate = (Math.floor((Math.random() * 1000000000000000) + 1)).toString();
-        console.log(sessionIdGenerate);
+
+        var session = '13438357422112669548';
+        // var session = '1234';
+        
 
         // CONFIG.debugDBConfig.userName;
         var credentialsLogin = {
             "database": "brettk",
-            "sessionId": "13438357422112669548",
+            "sessionId": session,
             "userName": "brettkelley@geotab.com",
             "password": CONFIG.debugDBConfig.password
         };
 
         var credentialsSession = {
             "database": "brettk",
-            "sessionId": "13438357422112669548",
+            "sessionId": session,
             "userName": "brettkelley@geotab.com"
         };
 
@@ -666,7 +668,7 @@ document.addEventListener("DOMContentLoaded", function () {
             call(CONFIG.debugDBConfig.host, "Get", {
                 credentials: credentialsLogin,
                 typeName: "Device"
-            })
+            });
         })
         .then(() => {
             for(i = 0; i < 30; i++) {
@@ -679,8 +681,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     results.forEach((result)=>{
                         console.log(result.name);
                     });
-                })
-            };
+                });
+            }
         })
         .catch(error);
     });
