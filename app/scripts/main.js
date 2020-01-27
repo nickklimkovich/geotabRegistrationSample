@@ -635,96 +635,123 @@ document.addEventListener("DOMContentLoaded", function () {
      */
     elErrorClose.addEventListener("click", hideError);
 
-    var api = GeotabApi(function (authenticateCallback) {
-        // authenticateCallback('my.geotab.com', 'database', 'user@example.com', 'password', function(err) {
-        authenticateCallback('my.geotab.com', 'brettk', 'brettkelley@geotab.com', CONFIG.debugDBConfig.password, function(err) {
-            console.error(err);
-        });
-    });
+    // elTestButton.addEventListener("click", function (){
 
-    var getDevice = function() {
-        api.call('Get', {
-            typeName: 'Device',
-            resultsLimit: 1
-        }, function (result) {
-            if (result) {
-                console.log(result);
-            }
-        }, function (err) {
-            console.error(err);
-        });
-    };
+    //     var run = async function(){
+    //         var devices = await newCallAsync('Get', 'Device');
+    //         console.log(`1 devices: ${devices}`);
+    //         // var users = await newCallAsync('Get', 'User');
+    //         // console.log(`2 user: ${users}`);
+    //         // devices = await newCallAsync('Get', 'Device');
+    //         // console.log(`3 devices: ${devices}`);
+    //         // users = await newCallAsync('Get', 'User');
+    //         // console.log(`4 user: ${users}`);
+    //         // devices = await newCallAsync('Get', 'Device');
+    //         // console.log(`5 devices: ${devices}`);
+    //         // users = await newCallAsync('Get', 'User');
+    //         // console.log(`6 user: ${users}`);
+    //     };
+
+    //     run();
+
+    //     // var result = newCallAsync('Get', 'User');
+    //     // console.log('result is:', result);
+
+    //     // newCallAsync('Get', 'Rule')
+    //     // .then(function(val){
+    //     //         console.log(`succeeded: ${val}`);
+    //     //     }, function(err) {
+    //     //         console.log(`rejected: ${err}`);
+    //     // })
+    //     // .then(newCallAsync('Get', 'User'))
+    //     // .then(function(val){
+    //     //         console.log(`succeeded: ${val}`);
+    //     //     }, function(err) {
+    //     //         console.log(`rejected: ${err}`);
+    //     // })
+    //     // .catch((error)=>{
+    //     //     console.log('chain error is:', error);
+    //     // });
+
+    //     // Sample API invocation retrieves a single "Device" object
+    //     // api.call('Get', {
+    //     //     typeName: 'Device',
+    //     //     resultsLimit: 1
+    //     // }, function (result) {
+    //     //     if (result) {
+    //     //         console.log(result);
+
+    //     //         api.getSession(function (session) {
+    //     //             console.log(session);
+    //     //         });
+
+    //     //     }
+    //     // }, function (err) {
+    //     //     console.error(err);
+    //     // });
+    // });
 
     elTestButton.addEventListener("click", function (){
-        // Sample API invocation retrieves a single "Device" object
-        api.call('Get', {
-            typeName: 'Device',
-            resultsLimit: 1
-        }, function (result) {
-            if (result) {
-                console.log(result);
+        // var sessionId = 'test1234';
+        // var formValues = getFormValues();
+        // call()
 
-                api.getSession(function (session) {
-                    console.log(session);
-                });
-
-            }
-        }, function (err) {
-            console.error(err);
-        });
-    });
-
-    // elTestButton.addEventListener("click", function (){
-    //     // var sessionId = 'test1234';
-    //     // var formValues = getFormValues();
-    //     // call()
-
-    //     var loginResult = getLoginResult();
-    //     // var session = '13438357422112669548';
-    //     var session = '1234';
+        // var loginResult = getLoginResult();
+        // var session = '13438357422112669548';
+        var session = '9MFgpdU5H_cmy32H2moGqw';
         
 
-    //     // CONFIG.debugDBConfig.userName;
-    //     var credentialsLogin = {
-    //         "database": "brettk",
-    //         "sessionId": session,
-    //         "userName": "brettkelley@geotab.com",
-    //         "password": CONFIG.debugDBConfig.password
-    //     };
+        // CONFIG.debugDBConfig.userName;
+        var credentialsLogin = {
+            "database": "Brett_Test20",
+            // "sessionId": session,
+            "userName": "brettkelley@geotab.com",
+            "password": CONFIG.debugDBConfig.password
+        };
 
-    //     var credentialsSession = {
-    //         "database": "brettk",
-    //         "sessionId": session,
-    //         "userName": "brettkelley@geotab.com"
-    //     };
+        var credentialsSession = {
+            "database": "Brett_Test20",
+            "sessionId": session,
+            "userName": "brettkelley@geotab.com"
+        };
 
-    //             //call that does not seem to require credentials
-    //     call(CONFIG.debugDBConfig.host, "GetTimeZones")
-    //     .then(function (timeZones) {
-    //         console.log(timeZones);
-    //     })
-    //     .then(() => {
-    //         call(CONFIG.debugDBConfig.host, "Get", {
-    //             credentials: credentialsLogin,
-    //             typeName: "Device"
-    //         });
-    //     })
-    //     .then(() => {
-    //         for(i = 0; i < 30; i++) {
-    //             call(CONFIG.debugDBConfig.host, "Get", {
-    //                 credentials: credentialsSession,
-    //                 typeName: "Device"
-    //             })
-    //             .then((results)=>{
-    //                 console.log(`iteration: ${i}, results.length: ${results.length}`);
-    //                 results.forEach((result)=>{
-    //                     console.log(result.name);
-    //                 });
-    //             });
-    //         }
-    //     })
-    //     .catch(error);
-    // });
+        call("my517.geotab.com", "Authenticate", {
+            "userName": "brettkelley@geotab.com",
+            "password": CONFIG.debugDBConfig.password,
+            "database": "BrettK"
+        }).then(function (loginResult) {
+            console.log(loginResult);
+        }, function(err){
+            console.log(err);
+        });
+
+                //call that does not seem to require credentials
+        // call(CONFIG.debugDBConfig.host, "GetTimeZones")
+        // .then(function (timeZones) {
+        //     console.log(timeZones);
+        // })
+        // .then(() => {
+        //     call(CONFIG.debugDBConfig.host, "Get", {
+        //         credentials: credentialsLogin,
+        //         typeName: "Device"
+        //     });
+        // })
+        // .then(() => {
+        //     for(i = 0; i < 30; i++) {
+        //         call(CONFIG.debugDBConfig.host, "Get", {
+        //             credentials: credentialsSession,
+        //             typeName: "Device"
+        //         })
+        //         .then((results)=>{
+        //             console.log(`iteration: ${i}, results.length: ${results.length}`);
+        //             results.forEach((result)=>{
+        //                 console.log(result.name);
+        //             });
+        //         });
+        //     }
+        // })
+        // .catch(error);
+    });
 
     /**
      * Handel form submit
@@ -758,6 +785,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         showLoading();
 
+        //the credentials are added during the createDatabase step
         createDatabase(formValues)
             .then(getUser)
             .then(uploadConfigFile)
