@@ -399,7 +399,10 @@
                             }]);
                         return requests;
                     }, []);
-                return multiCall(server, requests, credentials).then(function(res) {
+                // processUserImports(server,requests, credentials);
+                // return multiCall(server, requests, credentials)
+                return processUserImports(server,requests, credentials)
+                .then(function(res) {
                     updateImportedData(requests, users, res);
                 }).then(function() { // Disactivate users that should be inactive
                     var updateRequests = [];
@@ -420,6 +423,24 @@
                     console.error(e);
                     console.log(requests);
                 });
+            },
+            //Brett - new sync import user function handling duplicates
+            processUserImports = function(server, requests, credentials){
+                var method;
+                var data;
+                for (let i = 0; i < requests.length; i++) {
+                    method = requests[i][0];
+                    console.log(method);
+                    data = requests[i][1];
+                    data.credentials = credentials;
+                    console.log(data);
+                    call(server, method, data)
+                    .then(function(result){
+                        console.log(`Added user ${data.entity.name}`);
+                    }, function(err){
+                        console.log(`Error adding user ${data.entity.name}. Error: ${err.message}`);
+                    });
+                  }
             },
 
             generateAddRequests = function (entities, entityType) {
@@ -536,7 +557,7 @@
                                 return res;
                             }, []);
                             return multiCall(server, requests, credentials);
-                        })
+                        });
                     },
                     updateDependencies = function (rules) {
                         var updateConditionsData = function(condition) {
