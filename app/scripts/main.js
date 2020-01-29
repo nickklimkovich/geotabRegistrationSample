@@ -350,6 +350,14 @@ document.addEventListener("DOMContentLoaded", function () {
             return call(host, "CreateDatabase2", params).then(processResult);
         },
 
+        /**
+         * Get session credentials
+         * @param params {object} - the create database parameters
+         * @returns {object} - the database, user and password
+         */
+        getSessionCredentials = function(){
+            return;
+        },
 
         createDebugDatabase = function () {
             var processResult = function () {

@@ -26,3 +26,54 @@ var authenticate = function(server, userName, password, database) {
     });
 };
 
+/**
+ * processes the array synchronously handling duplicates
+ * @author Brett Kelley
+ * @param server {string} - the create database parameters
+ * @param requests {array} - an array of api calls
+ * @param credentials {object} - credentials object
+ * @returns {object} - the database, user and password
+ */
+processApiArray = function(server, requests, credentials){
+    requests.reduce( async (previousPromise, request) => {
+        await previousPromise;
+        return executeSingleApiCallP(request, server, credentials);
+      }, Promise.resolve());
+};
+
+executeSingleApiCallP = function(request, server, credentials){
+    return new Promise( function (resolve, reject) {
+        var method = request[0];
+        console.log(method);
+        var data = request[1];
+        data.credentials = credentials;
+        console.log(data);
+        console.log(request);
+        call(server, method, data)
+        .then(function(result){
+            var success = `Added user ${data.entity.name}`;
+            console.log(success);
+            resolve(success);
+        }, function(err){
+            var failure = `Error adding user ${data.entity.name}. Error message: ${err.message}`;
+            console.log(failure);
+            resolve(failure);
+        });
+    });
+};
+
+// var method;
+// var data;
+// for (let i = 0; i < requests.length; i++) {
+//     method = requests[i][0];
+//     console.log(method);
+//     data = requests[i][1];
+//     data.credentials = credentials;
+//     console.log(data);
+//     call(server, method, data)
+//     .then(function(result){
+//         console.log(`Added user ${data.entity.name}`);
+//     }, function(err){
+//         console.log(`Error adding user ${data.entity.name}. Error: ${err.message}`);
+//     });
+//     }

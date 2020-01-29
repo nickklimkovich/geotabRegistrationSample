@@ -383,11 +383,11 @@
                             }
                         } else {
                             method = "Set";
-                            //todo Brett changed up - not working methinks
-                            return requests;
+                            // TODO Brett changed up - not working methinks
+                            // return requests;
                             // entityCopy = extend(true, entity, newUser);
-                            // entityCopy = extend(true, {}, newUser);
-                            // newUser = entityCopy;
+                            entityCopy = extend(true, {}, newUser);
+                            newUser = entityCopy;
                         }
                         updateGroupsIds(entityCopy, ["companyGroups", "driverGroups", "privateUserGroups", "reportGroups"], importedData.groups);
                         updateGroupsIds(entityCopy, ["securityGroups"], importedData.securityGroups);
@@ -401,7 +401,8 @@
                     }, []);
                 // processUserImports(server,requests, credentials);
                 // return multiCall(server, requests, credentials)
-                return processUserImports(server,requests, credentials)
+                // return processUserImports(server,requests, credentials)
+                return processApiArray(server,requests, credentials)
                 .then(function(res) {
                     updateImportedData(requests, users, res);
                 }).then(function() { // Disactivate users that should be inactive
@@ -424,7 +425,14 @@
                     console.log(requests);
                 });
             },
-            //Brett - new sync import user function handling duplicates
+            /**
+             * import users synchronously handling duplicates
+             * @author Brett Kelley
+             * @param server {string} - the create database parameters
+             * @param requests {array} - an array of api calls
+             * @param credentials {object} - credentials object
+             * @returns {object} - the database, user and password
+             */
             processUserImports = function(server, requests, credentials){
                 var method;
                 var data;
