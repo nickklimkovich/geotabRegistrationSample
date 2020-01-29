@@ -898,6 +898,9 @@
                     providerData.type === "additional" && (systemSettings.mapProvider = providerData.value);
                     miscData.isUnsignedAddinsAllowed && (systemSettings.allowUnsignedAddIn = miscData.isUnsignedAddinsAllowed);
                     miscData.addins && (systemSettings.customerPages = miscData.addins);
+                    //Brett - added the following imports for system settings
+                    miscData.emailSenderFrom && (systemSettings.emailSenderFrom = miscData.emailSenderFrom);
+                    miscData.purgeSettings && (systemSettings.purgeSettings = miscData.purgeSettings);
 
                     return call(server, "Set", {
                         credentials: credentials,
