@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var CONFIG = {
             // This is the host will post to to create the database. This should be the root server in the federation.
             defaultHost: "my1.geotab.com",
-            debug: false,
+            debug: true,
             // Local debug config (you must create DB and admin user manually)
             debugDBConfig: {
                 host: host_Test,
@@ -423,7 +423,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         return {
                             isAdd: true,
                             securityIdentifier: permission
-                        }
+                        };
                     }),
                     color: {a: 0, b: 0, g: 0, r: 0}
                 }
@@ -564,8 +564,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (CONFIG.debug) {
         elCompanyName.value = "Brett_Test";
-        elDatabaseNameText.value = "Brett_Test17";
-        elDatabaseName.value = "Brett_Test17";
+        elDatabaseNameText.value = "Brett_Test32";
+        elDatabaseName.value = "Brett_Test32";
         elPhoneNumber.value = "qqq";
         elFleetSize.value = "qqq";
 
@@ -645,6 +645,7 @@ document.addEventListener("DOMContentLoaded", function () {
      */
     elErrorClose.addEventListener("click", hideError);
 
+    elTestButton.style.display = 'none';
     /**
      * Brett - Authentication & api calls to test & learn
      */
