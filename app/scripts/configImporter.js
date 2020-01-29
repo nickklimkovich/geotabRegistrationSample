@@ -399,9 +399,7 @@
                             }]);
                         return requests;
                     }, []);
-                // processUserImports(server,requests, credentials);
                 // return multiCall(server, requests, credentials)
-                // return processUserImports(server,requests, credentials)
                 return processApiArray(server,requests, credentials)
                 .then(function(res) {
                     updateImportedData(requests, users, res);
@@ -425,32 +423,6 @@
                     console.log(requests);
                 });
             },
-            /**
-             * import users synchronously handling duplicates
-             * @author Brett Kelley
-             * @param server {string} - the create database parameters
-             * @param requests {array} - an array of api calls
-             * @param credentials {object} - credentials object
-             * @returns {object} - the database, user and password
-             */
-            processUserImports = function(server, requests, credentials){
-                var method;
-                var data;
-                for (let i = 0; i < requests.length; i++) {
-                    method = requests[i][0];
-                    console.log(method);
-                    data = requests[i][1];
-                    data.credentials = credentials;
-                    console.log(data);
-                    call(server, method, data)
-                    .then(function(result){
-                        console.log(`Added user ${data.entity.name}`);
-                    }, function(err){
-                        console.log(`Error adding user ${data.entity.name}. Error: ${err.message}`);
-                    });
-                  }
-            },
-
             generateAddRequests = function (entities, entityType) {
                 return entities && entities.reduce(function (requests, entity) {
                     var method = "Add",
