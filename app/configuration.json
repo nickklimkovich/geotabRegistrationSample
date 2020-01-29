@@ -1,12 +1,12 @@
 {
-    "name": "Registration Import",
+    "name": "MyGeotab Database Import",
     "supportEmail": "brettkelley@geotab.com",
     "version": "1.0",
     "items": [{
             "url": "index.html",
             "path": "ActivityLink/",
             "menuName": {
-                "en": "Registration Import"
+                "en": "MyGeotab Database Import"
             }
         }
     ]
