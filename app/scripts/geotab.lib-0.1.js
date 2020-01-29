@@ -32,7 +32,7 @@ var authenticate = function(server, userName, password, database) {
  * @param server {string} - the create database parameters
  * @param requests {array} - an array of api calls
  * @param credentials {object} - credentials object
- * @returns {object} - the database, user and password
+ * @returns {array} - undefined
  */
 processApiArray = function(server, requests, credentials){
     requests.reduce( async (previousPromise, request) => {
@@ -59,5 +59,34 @@ executeSingleApiCallP = function(request, server, credentials){
             console.log(failure);
             resolve(failure);
         });
+    });
+};
+
+/**
+ * import users synchronously handling duplicates
+ * @author Brett Kelley
+ * @param server {string} - the create database parameters
+ * @param requests {array} - an array of api calls
+ * @param credentials {object} - credentials object
+ * @returns {object} - the database, user and password
+ */
+processUserImports = function(server, requests, credentials){
+    return new Promise( function(resolve, reject) {
+        var method;
+        var data;
+        for (let i = 0; i < requests.length; i++) {
+            method = requests[i][0];
+            console.log(method);
+            data = requests[i][1];
+            data.credentials = credentials;
+            console.log(data);
+            call(server, method, data)
+            .then(function(result){
+                console.log(`Added user ${data.entity.name}`);
+            }, function(err){
+                console.log(`Error adding user ${data.entity.name}. Error: ${err.message}`);
+            });
+        }
+        resolve(requests);
     });
 };

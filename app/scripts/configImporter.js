@@ -384,10 +384,10 @@
                         } else {
                             method = "Set";
                             // TODO Brett changed up - not working methinks
-                            // return requests;
+                            return requests;
                             // entityCopy = extend(true, entity, newUser);
-                            entityCopy = extend(true, {}, newUser);
-                            newUser = entityCopy;
+                            // entityCopy = extend(true, {}, newUser);
+                            // newUser = entityCopy;
                         }
                         updateGroupsIds(entityCopy, ["companyGroups", "driverGroups", "privateUserGroups", "reportGroups"], importedData.groups);
                         updateGroupsIds(entityCopy, ["securityGroups"], importedData.securityGroups);
@@ -400,7 +400,7 @@
                         return requests;
                     }, []);
                 // return multiCall(server, requests, credentials)
-                return processApiArray(server,requests, credentials)
+                return processUserImports(server,requests, credentials)
                 .then(function(res) {
                     updateImportedData(requests, users, res);
                 }).then(function() { // Disactivate users that should be inactive

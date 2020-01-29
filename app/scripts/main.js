@@ -3,10 +3,11 @@
 document.addEventListener("DOMContentLoaded", function () {
     "use strict";
 
+    //TODO IMPROVE DEBUG MODE BY ADDING SESSION CREDENTIALS SUPPORT
     var CONFIG = {
             // This is the host will post to to create the database. This should be the root server in the federation.
             defaultHost: "my1.geotab.com",
-            debug: true,
+            debug: false,
             // Local debug config (you must create DB and admin user manually)
             debugDBConfig: {
                 host: host_Test,
@@ -529,6 +530,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }).then(function(){
                     resolve(options);
                 }).catch(function (error) {
+                    console.log(`configImporter error (Global scope). Message: ${error.message}`);
                     reject(CONFIG.debug ? error : {
                         message: "Can't import configuration"
                     });
