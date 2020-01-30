@@ -901,6 +901,7 @@
                     //Brett - added the following imports for system settings
                     miscData.emailSenderFrom && (systemSettings.emailSenderFrom = miscData.emailSenderFrom);
                     miscData.purgeSettings && (systemSettings.purgeSettings = miscData.purgeSettings);
+                    miscData.customerClassification && (systemSettings.customerClassification = miscData.customerClassification);
 
                     return call(server, "Set", {
                         credentials: credentials,
