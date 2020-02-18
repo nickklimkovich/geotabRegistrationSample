@@ -90,7 +90,8 @@
         }
 
         xhr.timeout = timeout;
-        console.log(rpcString);
+        //Brett - useful for debugging
+        // console.log(rpcString);
         xhr.send('JSON-RPC=' + encodeURIComponent(rpcString));
       });
     },

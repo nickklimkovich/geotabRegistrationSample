@@ -76,10 +76,10 @@ processUserImports = function(server, requests, credentials){
         var data;
         for (let i = 0; i < requests.length; i++) {
             method = requests[i][0];
-            console.log(method);
+            // console.log(method);
             data = requests[i][1];
             data.credentials = credentials;
-            console.log(data);
+            // console.log(data);
             call(server, method, data)
             .then(function(result){
                 console.log(`Added user ${data.entity.name}`);

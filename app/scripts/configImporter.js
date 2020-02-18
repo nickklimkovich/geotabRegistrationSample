@@ -93,10 +93,10 @@
                             });
 
                             return result.then(function () {
-                                console.log(`importer: ${levelImportParams.importer.name}`);
-                                dataForImport.forEach((item)=> {
-                                    console.log(item.type);
-                                });
+                                // console.log(`importer: ${levelImportParams.importer.name}`);
+                                // dataForImport.forEach((item)=> {
+                                //     console.log(item.type);
+                                // });
                                 return levelImportParams.importer(dataForImport);
                             });
                         }, getResolvedPromise())
@@ -349,7 +349,7 @@
                     updateImportedData(requests, initialData, importedData);
                 }).catch(function (e) {
                     console.error(e);
-                    console.log(requests);
+                    // console.log(requests);
                 });
             },
 
@@ -420,7 +420,7 @@
                     return multiCall(server, updateRequests, credentials);
                 }).catch(function (e) {
                     console.error(e);
-                    console.log(requests);
+                    // console.log(requests);
                 });
             },
             generateAddRequests = function (entities, entityType) {
@@ -513,7 +513,7 @@
                     });
                 }).catch(function (e) {
                     console.error(e);
-                    console.log(requests);
+                    // console.log(requests);
                 });
             },
 
@@ -722,7 +722,7 @@
                     updateImportedData(requests, rules, importedRules, customTypeGetter, customIdGetter);
                 }).catch(function (e) {
                     console.error(e);
-                    console.log(requests);
+                    // console.log(requests);
                 });
             },
 
