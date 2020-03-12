@@ -896,13 +896,16 @@
                 }).then(function (result) {
                     var systemSettings = result[0];
                     providerData.type === "additional" && (systemSettings.mapProvider = providerData.value);
-                    miscData.isUnsignedAddinsAllowed && (systemSettings.allowUnsignedAddIn = miscData.isUnsignedAddinsAllowed);
+                    // miscData.isUnsignedAddinsAllowed && (systemSettings.allowUnsignedAddIn = miscData.isUnsignedAddinsAllowed);
                     miscData.addins && (systemSettings.customerPages = miscData.addins);
                     //Brett - added the following imports for system settings
-                    miscData.emailSenderFrom && (systemSettings.emailSenderFrom = miscData.emailSenderFrom);
-                    miscData.purgeSettings && (systemSettings.purgeSettings = miscData.purgeSettings);
-                    miscData.customerClassification && (systemSettings.customerClassification = miscData.customerClassification);
-
+                    systemSettings.allowUnsignedAddIn = miscData.isUnsignedAddinsAllowed;
+                    systemSettings.emailSenderFrom = miscData.emailSenderFrom;
+                    systemSettings.purgeSettings = miscData.purgeSettings;
+                    systemSettings.customerClassification = miscData.customerClassification;
+                    systemSettings.allowMarketplacePurchases = miscData.isMarketplacePurchasesAllowed;
+                    systemSettings.allowResellerAutoLogin = miscData.isResellerAutoLoginAllowed;
+                    systemSettings.allowThirdPartyMarketplaceApps = miscData.isThirdPartyMarketplaceAppsAllowed;
                     return call(server, "Set", {
                         credentials: credentials,
                         typeName: "SystemSettings",
