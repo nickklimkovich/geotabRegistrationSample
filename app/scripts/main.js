@@ -10,10 +10,10 @@ document.addEventListener("DOMContentLoaded", function () {
             debug: false,
             // Local debug config (you must create DB and admin user manually)
             debugDBConfig: {
-                host: host_Test,
-                db: db_Test, // loacal DB name
-                user: user_Test, // DB admin user
-                password: password_Test // DB admin user password
+                host: "127.0.0.1",
+                db: "temp", // loacal DB name
+                user: "qwe@qwe.com", // DB admin user
+                password: "qweqwe" // DB admin user password
             },
             allowedSecurityRules: [ // If not empty array then Restricted Admin user will be created with permission provided
                 //"AboutCheckmate",
