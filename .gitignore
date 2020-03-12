@@ -1,10 +1,7 @@
 node_modules
 dist
-out
 .tmp
 bower_components
 .idea/
-package-lock.json
-app/scripts/TestData.js
 debugging
 *cache*
