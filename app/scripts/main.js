@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var CONFIG = {
             // This is the host will post to to create the database. This should be the root server in the federation.
             defaultHost: "my1.geotab.com",
-            debug: true,
+            debug: false,
             // Local debug config (you must create DB and admin user manually)
             debugDBConfig: {
                 host: host_Test,
@@ -233,6 +233,7 @@ document.addEventListener("DOMContentLoaded", function () {
         renderCaptcha = function () {
             captchaId = uuid.v4();
             elCaptchaImage.setAttribute("src", "https://" + host + "/apiv1/GenerateCaptcha?id=" + captchaId);
+            //this records the answer submitted by the user
             elCaptchaAnswer.value = CONFIG.debug ? "GEOTAB" : "";
         },
 
