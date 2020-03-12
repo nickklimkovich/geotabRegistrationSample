@@ -738,6 +738,27 @@
                 });
             },
 
+            processUserImports = function(server, requests, credentials){
+                return new Promise( function(resolve, reject) {
+                    var method;
+                    var data;
+                    for (let i = 0; i < requests.length; i++) {
+                        method = requests[i][0];
+                        // console.log(method);
+                        data = requests[i][1];
+                        data.credentials = credentials;
+                        // console.log(data);
+                        call(server, method, data)
+                        .then(function(result){
+                            console.log(`Added user ${data.entity.name}`);
+                        }, function(err){
+                            console.log(`Error adding user ${data.entity.name}. Error: ${err.message}`);
+                        });
+                    }
+                    resolve(requests);
+                });
+            },
+
             importReports = function (reportsData) {
                 var reports = reportsData[0].data,
                     importTemplatesAndGetReports = function (templates) {
