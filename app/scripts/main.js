@@ -554,18 +554,18 @@ document.addEventListener("DOMContentLoaded", function () {
     elRegistrationServerText.value = host;
 
     if (CONFIG.debug) {
-        elCompanyName.value = "Brett_Test";
-        elDatabaseNameText.value = "Brett_Test32";
-        elDatabaseName.value = "Brett_Test32";
+        elCompanyName.value = "qqq";
+        elDatabaseNameText.value = "qqq";
+        elDatabaseName.value = "qqq";
         elPhoneNumber.value = "qqq";
         elFleetSize.value = "qqq";
 
         elRegistrationServerText.value = CONFIG.debugDBConfig.host;
-        elFirstName.value = "Brett";
-        elLastName.value = "Kelley";
-        elEmail.value = "brettkelley@geotab.com";
-        elPassword.value = password_Test;
-        elConfirmPassword.value = password_Test;
+        elFirstName.value = "qqq";
+        elLastName.value = "qqq";
+        elEmail.value = "qqq@qqq.com";
+        elPassword.value = "qqq";
+        elConfirmPassword.value = "qqq";
         elCaptchaAnswer.value = "GEOTAB";
     }
 
