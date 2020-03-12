@@ -521,7 +521,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }).then(function(){
                     resolve(options);
                 }).catch(function (error) {
-                    console.log(`configImporter error (Global scope). Message: ${error.message}`);
+                    // console.log(`configImporter error (Global scope). Message: ${error.message}`);
                     reject(CONFIG.debug ? error : {
                         message: "Can't import configuration"
                     });
