@@ -59,7 +59,6 @@ document.addEventListener("DOMContentLoaded", function () {
         elImportFile = document.querySelector("#importFile"),
 
         elSubmit = document.querySelector("#submit"),
-        elTestButton = document.getElementById('testBtn'),
 
         elRequiredInputs = document.querySelectorAll("input[required]"),
 
@@ -636,70 +635,6 @@ document.addEventListener("DOMContentLoaded", function () {
      * Hide error message on click
      */
     elErrorClose.addEventListener("click", hideError);
-
-    elTestButton.style.display = 'none';
-    /**
-     * Brett - Authentication & api calls to test & learn
-     */
-    elTestButton.addEventListener("click", function (){
-
-        // var credentialsLogin = {
-        //     "database": "Brett_Test20",
-        //     // "sessionId": session,
-        //     "userName": "brettkelley@geotab.com",
-        //     "password": CONFIG.debugDBConfig.password
-        // };
-
-        var path;
-        var credentialsSession = {
-            "database": "Brett_Test20",
-            "sessionId": '',
-            "userName": "brettkelley@geotab.com"
-        };
-
-        authenticate("my.geotab.com", "brettkelley@geotab.com", 
-        CONFIG.debugDBConfig.password, "BrettK")
-        .then(function(results){
-            credentialsSession.database = results.credentials.database;
-            credentialsSession.sessionId = results.credentials.sessionId;
-            path = results.path;
-            console.log('credentialsSession', credentialsSession);
-            console.log('loginResult: ', results);
-            console.log('sessionId: ', results.credentials.sessionId);
-            console.log('path: ', results.path);
-        })
-        .then(() => {
-            //call that does not seem to require credentials
-            call(path, "GetTimeZones");
-        })
-        .then(function (timeZones) {
-            console.log(timeZones);
-        })
-        .then(() => {
-            call(path, "Get", {
-                credentials: credentialsSession,
-                typeName: "Device"
-            });
-        })
-        .then(() => {
-            for(i = 0; i < 30; i++) {
-                call(path, "Get", {
-                    credentials: credentialsSession,
-                    typeName: "Device"
-                })
-                .then((results)=>{
-                    console.log(`iteration: ${i}, results.length: ${results.length}`);
-                    results.forEach((result)=>{
-                        console.log(result.name);
-                    });
-                });
-            }
-        })
-        .catch(error);
-
-        console.log('here');
-        console.log('and here');
-    });
 
     /**
      * Handel form submit
