@@ -382,18 +382,11 @@
                                 inactiveUsers.push(user);
                             }
                         } else {
-                            // method = "Set";
-                            // return requests;
                             entityCopy = extend(true, user, newUser);
                             newUser = entityCopy;
                         }
                         updateGroupsIds(entityCopy, ["companyGroups", "driverGroups", "privateUserGroups", "reportGroups"], importedData.groups);
                         updateGroupsIds(entityCopy, ["securityGroups"], importedData.securityGroups);
-                        //Check for SAML user and set to BasicAuthentication and remove the certificate reference. Due to certificate import error: 23503 - RelationViolatedException
-                        if(user.userAuthenticationType=="SAML") {
-                            user.userAuthenticationType = "BasicAuthentication";
-                            delete user.issuerCertificate;
-                        }
                         requests.push([
                             method, {
                                 typeName: "User",
@@ -402,7 +395,6 @@
                         return requests;
                     }, []);
                 return multiCall(server, requests, credentials)
-                //return processUserImports(server,requests, credentials)
                 .then(function(res) {
                     updateImportedData(requests, users, res);
                 }).then(function() { // Disactivate users that should be inactive
@@ -737,27 +729,6 @@
                         importedData[type] = {};
                     }
                     importedData[type][oldId] = newId;
-                });
-            },
-
-            processUserImports = function(server, requests, credentials){
-                return new Promise( function(resolve, reject) {
-                    var method;
-                    var data;
-                    for (let i = 0; i < requests.length; i++) {
-                        method = requests[i][0];
-                        // console.log(method);
-                        data = requests[i][1];
-                        data.credentials = credentials;
-                        // console.log(data);
-                        call(server, method, data)
-                        .then(function(result){
-                            console.log(`Added user ${data.entity.name}`);
-                        }, function(err){
-                            console.log(`Error adding user ${data.entity.name}. Error: ${err.message}`);
-                        });
-                    }
-                    resolve(requests);
                 });
             },
 
