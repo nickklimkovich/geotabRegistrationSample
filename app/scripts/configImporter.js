@@ -382,16 +382,18 @@
                                 inactiveUsers.push(user);
                             }
                         } else {
-                            method = "Set";
-                            // TODO Brett changed up - not working methinks
-                            return requests;
-                            // entityCopy = extend(true, entity, newUser);
-                            // entityCopy = extend(true, {}, newUser);
-                            // newUser = entityCopy;
+                            // method = "Set";
+                            // return requests;
+                            entityCopy = extend(true, user, newUser);
+                            newUser = entityCopy;
                         }
                         updateGroupsIds(entityCopy, ["companyGroups", "driverGroups", "privateUserGroups", "reportGroups"], importedData.groups);
                         updateGroupsIds(entityCopy, ["securityGroups"], importedData.securityGroups);
-
+                        //Check for SAML user and set to BasicAuthentication and remove the certificate reference. Due to certificate import error: 23503 - RelationViolatedException
+                        if(user.userAuthenticationType=="SAML") {
+                            user.userAuthenticationType = "BasicAuthentication";
+                            delete user.issuerCertificate;
+                        }
                         requests.push([
                             method, {
                                 typeName: "User",
@@ -399,8 +401,8 @@
                             }]);
                         return requests;
                     }, []);
-                // return multiCall(server, requests, credentials)
-                return processUserImports(server,requests, credentials)
+                return multiCall(server, requests, credentials)
+                //return processUserImports(server,requests, credentials)
                 .then(function(res) {
                     updateImportedData(requests, users, res);
                 }).then(function() { // Disactivate users that should be inactive
