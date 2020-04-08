@@ -1,0 +1,16 @@
+.browsehappy {
+  margin: 0.2em 0;
+  background: #ccc;
+  color: #000;
+  padding: 0.2em 0;
+}
+/* Fix the error to top of page */
+#error {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+}
+
+/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIm1haW4uY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0UsZ0JBQWdCO0VBQ2hCLGlCQUFpQjtFQUNqQixZQUFZO0VBQ1osaUJBQWlCO0NBQ2xCO0FBQ0Qsa0NBQWtDO0FBQ2xDO0VBQ0UsZ0JBQWdCO0VBQ2hCLE9BQU87RUFDUCxRQUFRO0VBQ1IsWUFBWTtFQUNaLFdBQVc7Q0FDWiIsImZpbGUiOiJtYWluLmNzcyIsInNvdXJjZXNDb250ZW50IjpbIi5icm93c2VoYXBweSB7XHJcbiAgbWFyZ2luOiAwLjJlbSAwO1xyXG4gIGJhY2tncm91bmQ6ICNjY2M7XHJcbiAgY29sb3I6ICMwMDA7XHJcbiAgcGFkZGluZzogMC4yZW0gMDtcclxufVxyXG4vKiBGaXggdGhlIGVycm9yIHRvIHRvcCBvZiBwYWdlICovXHJcbiNlcnJvciB7XHJcbiAgcG9zaXRpb246IGZpeGVkO1xyXG4gIHRvcDogMDtcclxuICBsZWZ0OiAwO1xyXG4gIHdpZHRoOiAxMDAlO1xyXG4gIHotaW5kZXg6IDE7XHJcbn1cclxuIl19 */
