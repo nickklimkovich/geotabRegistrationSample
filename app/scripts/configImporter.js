@@ -363,8 +363,8 @@
             importUsers = function (usersData) {
                 var users = usersData[0].data,
                     inactiveUsers = [],
-                    method = "Add",
                     requests = users.reduce(function(requests, user) {
+                        var method = "Add";
                         var entityCopy = extend(true, {}, user);
                         delete(entityCopy.availableDashboardReports);
                         delete(entityCopy.activeDashboardReports);
@@ -377,7 +377,7 @@
                             }
                         } else {
                             method = "Set";
-                            entityCopy = extend(true, entity, newUser);
+                            entityCopy = extend(true, entityCopy, newUser);
                             newUser = entityCopy;
                         }
                         updateGroupsIds(entityCopy, ["companyGroups", "driverGroups", "privateUserGroups", "reportGroups"], importedData.groups);
@@ -886,8 +886,14 @@
                 }).then(function (result) {
                     var systemSettings = result[0];
                     providerData.type === "additional" && (systemSettings.mapProvider = providerData.value);
-                    miscData.isUnsignedAddinsAllowed && (systemSettings.allowUnsignedAddIn = miscData.isUnsignedAddinsAllowed);
-                    miscData.addins && (systemSettings.customerPages = miscData.addins);
+                    systemSettings.customerPages = miscData.addins;
+                    systemSettings.allowUnsignedAddIn = miscData.isUnsignedAddinsAllowed;
+                    systemSettings.emailSenderFrom = miscData.emailSenderFrom;
+                    systemSettings.purgeSettings = miscData.purgeSettings;
+                    systemSettings.customerClassification = miscData.customerClassification;
+                    systemSettings.allowMarketplacePurchases = miscData.isMarketplacePurchasesAllowed;
+                    systemSettings.allowResellerAutoLogin = miscData.isResellerAutoLoginAllowed;
+                    systemSettings.allowThirdPartyMarketplaceApps = miscData.isThirdPartyMarketplaceAppsAllowed;
 
                     return call(server, "Set", {
                         credentials: credentials,
