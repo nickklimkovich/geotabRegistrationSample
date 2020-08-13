@@ -56,7 +56,6 @@ document.addEventListener("DOMContentLoaded", function () {
         elCaptchaAnswer = document.querySelector("#captchaAnswer"),
         elImportFile = document.querySelector("#importFile"),
         elImportFileStatus = document.querySelector("#importFileStatus"),
-        
 
         elSubmit = document.querySelector("#submit"),
 
@@ -618,10 +617,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     elImportFile.addEventListener("change", function (e) {
         var file = e.target.files && e.target.files[0];
+        var state = validationState.error;
 
         if (file && file.name && (!importedConfigFile || (importedConfigFile.name !== file.name && importedConfigFile.lastModified !== file.lastModified))) {
             importedConfigFile = file;
+            state = validationState.none;
         }
+        changeValidationState(elImportFileStatus.parentNode, state);
     });
 
     /**
