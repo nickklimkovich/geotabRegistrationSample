@@ -55,6 +55,8 @@ document.addEventListener("DOMContentLoaded", function () {
         elCaptchaImage = document.querySelector("#captchaImage"),
         elCaptchaAnswer = document.querySelector("#captchaAnswer"),
         elImportFile = document.querySelector("#importFile"),
+        elImportFileStatus = document.querySelector("#importFileStatus"),
+        
 
         elSubmit = document.querySelector("#submit"),
 
@@ -246,6 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 database: elDatabaseName.value,
                 userName: elEmail.value,
                 password: elPassword.value,
+                importFile: elImportFile.value,
                 welcomeText: "Welcome to ABC Fleets",
                 language: "en",
                 companyDetails: {
@@ -319,6 +322,10 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!values.password) {
                 isValid = false;
                 changeValidationState(elPassword.parentNode, validationState.error);
+            }
+            if (!values.importFile) {
+                isValid = false;
+                changeValidationState(elImportFileStatus.parentNode, validationState.error);
             }
             if (!values.captchaAnswer.answer) {
                 isValid = false;
